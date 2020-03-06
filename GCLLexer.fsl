@@ -27,5 +27,23 @@ rule tokenize = parse
 | '^'           { POW }
 | '('           { LPAR }
 | ')'           { RPAR }
+| "["           { LBRAK }
+| "]"           { RBRAK }
 | ":="			{ ASSIGN }
+| "<"           { LT  }
+| ">"           { GT  }
+| "="           { EQ  }
+| ">="          { GE  } 
+| "<="          { LE  }
+| "&"           { AND }
+| "&&"          { SAND }
+| "|"           { OR  }
+| "||"          { SOR }
+| "!"           { NOT }
+| "!="          { NOTEQ }
+| "if"          { IF }
+| "do"          { DO }
+| ";"           { SEMI }
 | eof           { EOF }
+
+
