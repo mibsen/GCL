@@ -3,23 +3,74 @@
 
 %token <string> STRING
 %token <float> NUM
-%token TIMES DIV PLUS MINUS POW LPAR RPAR ASSIGN EOF
+%token <boolean> BOOL
+%token TIMES DIV PLUS MINUS POW LPAR RPAR ASSIGN EOF UMINUS
+%token LBRAK RBRAK SKIP IF FI DO OD THEN SEQ SEMICOLON
+%token AND OR SCAND SCOR NOT EQUALS GREATER LESS 
 
 // Specify precedence and associativity of operators
 // Precedence is given by the order (from low to high)
 %left PLUS MINUS
 %left TIMES DIV
 %right POW
+%left UMINUS
+
+%left OR SCOR
+%left AND SCAND
+%nonassoc NOT
+
+%right SEQ SEMICOLON
 
 // start
 %start start
 
-%type <expr> start
-%type <expr> expression
+%type <C> start
+%type <C> C
 
 
 %%
 
-start: ME NAME EOF                       { $2 }
+start: C EOF                        { $1 }
 
+C:
+    |x ASSIGN a                     { Assign($1, s3) }
+    |arr LBRAK a RBRACK ASSIGN a    { ArrayAssign($1, $3, $6) }
+    |SKIP                           { Skip }
+    |C SEMICOLON C                  { Concat($1, $2) }
+    |IF gc FI                       { IF($2) }
+    |DO gc OD                       { DO($2) }
+
+gc:
+    |b THEN C                       { Choice($1, $3) }
+    |gc SEQ gc                      { Sequential($1, $3) }       
+
+a:
+    |NUM                            { N($1) }
+    |x                              { X($1) }
+    |arr LBRAK a RBRACK             { ArrayAccess($1, $3) }
+    |a PLUS a                       { Plus($1, $3) }
+    |a MINUS a                      { Minus($1, $3) }
+    |a TIMES a                      { Multiply($1, $3) }
+    |a DIV a                        { Divide($1, $3) }
+    |UMINUS a                       { UMinus($2) }
+    |a POW a                        { Pow($1, $3) }
+    |LPAR a RPAR                    { $2 }
+
+x:
+    |STRING                         {  }
+
+b:
+    |BOOL                           { Bool($1) }
+    |b AND b                        { AND($1, $3) }
+    |b OR b                         { OR($1, $3) }
+    |b SCAND b                      { SCAND($1, $3) }
+    |b SCOR b                       { SCOR($1, $3) }
+    |NOT b                          { NOT($2) }
+    |a EQUALS a                     { Equals($1, $3) }
+    |a NOT EQUALS a                 { NotEquals($1, $4) }
+    |a GREATER a                    { GreaterThan($1, $3) }
+    |a GREATER EQUALS a             { GreaterEquals($1, $4) }
+    |a LESS a                       { LessThan($1, $3) }
+    |a LESS EQUALS a                { LessEquals($1, $4) }
+    |LPAR b RPAR                    { $2 }
 %%
