@@ -1,4 +1,4 @@
-﻿module GCLAST
+module GCLAST
    
 
 type x = string
@@ -13,12 +13,24 @@ and  a =
     | UPlus of (a)
     | UMinus of (a)
 
+ 
+
 
 and b = 
     | Bool of bool
+    | SAND of (b * b)
+    | SOR of (b * b)
     | AND of (b * b)
     | OR of (b * b)
     | NOT of (b)
+    | GT of (b * b)
+    | LT of (b * b)
+    | LE of (b * b)
+    | GE of (b * b)
+    | EQ of (b * b)
+ 
+
+
 
 
 and C = 
@@ -27,5 +39,5 @@ and C =
         | IF of (gc)
         | DO of (gc)
 and gc = 
-    | Choise of (b * C);;
+    | Choice of (b * C);;
     
