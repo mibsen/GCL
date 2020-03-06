@@ -1,19 +1,20 @@
-#r "packages/FsLexYacc.Runtime.10.0.0/lib/net46/FsLexYacc.Runtime.dll"
+#r "FsLexYacc.Runtime.10.0.0/lib/net46/FsLexYacc.Runtime.dll"
 
 open FSharp.Text.Lexing
 open System
 
-#load "GCLParser.fs"
+#load "GCLAST.fs"
+open GCLAST
 
+#load "GCLParser.fs"
 open GCLParser
 
 #load "GCLLexer.fs"
-
 open GCLLexer
 
 let parse input =
     let lexbuf = LexBuffer<char>.FromString input
-    let res = GCLParser.start HelloLexer.tokenize lexbuf
+    let res = GCLParser.start GCLLexer.tokenize lexbuf
     res
 
 let rec who n =
