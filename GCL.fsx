@@ -12,19 +12,18 @@ open GCLParser
 #load "GCLLexer.fs"
 open GCLLexer
 
-let parse input =
+let input = Console.ReadLine()
+printfn "%s" input
+try
     let lexbuf = LexBuffer<char>.FromString input
-    let res = GCLParser.start GCLLexer.tokenize lexbuf
-    res
-
-let rec who n =
-    if n = 0 then
-        printfn "Bye bye"
-    else
-        printfn "Who are you?"
-        try
-        let name = parse (Console.ReadLine())
-        printfn "Hello %s!" name
-        with e -> who (n-1)
-
-who 3
+    
+    try 
+       let res = GCLParser.start GCLLexer.tokenize lexbuf
+       printfn "COMPILED - Pretty print"
+       printfn "%s" (GCLAST.print res)
+       
+        
+     with e -> printfn "Parse: %s" e.Message
+               
+ with e -> printfn "ERROR: %s" e.Message
+          
