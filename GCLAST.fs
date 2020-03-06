@@ -12,6 +12,7 @@ and  a =
     | Pow of (a * a)
     | UPlus of (a)
     | UMinus of (a)
+    | ARR of a list
 
  
 
