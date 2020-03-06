@@ -1,0 +1,31 @@
+{
+module GCLLexer
+
+open System
+open GCLParser
+open FSharp.Text.Lexing
+open System.Text
+
+}
+
+let char        = ['a'-'z' 'A'-'Z']
+let digit       = ['0'-'9']
+let num         = digit+ ( '.' digit+)?  ('E' ('+'|'-')? digit+ )?
+let whitespace  = [' ' '\t']
+let newline     = "\n\r" | '\n' | '\r'
+let string        = char(char|digit)*
+
+rule tokenize = parse
+| whitespace    { tokenize lexbuf }
+| newline       { lexbuf.EndPos <- lexbuf.EndPos.NextLine; tokenize lexbuf; }
+| num           { NUM(Double.Parse(LexBuffer<_>.LexemeString lexbuf)) }
+| string        { let str = LexBuffer<_>.LexemeString lexbuf in STRING(str) }
+| '*'           { TIMES }
+| '/'           { DIV }
+| '+'           { PLUS }
+| '-'           { MINUS }
+| '^'           { POW }
+| '('           { LPAR }
+| ')'           { RPAR }
+| ":="			{ ASSIGN }
+| eof           { EOF }

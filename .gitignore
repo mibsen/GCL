@@ -1,0 +1,11 @@
+.vs/
+AssemblyInfo.fs
+GCLLexer.fs
+GCLParser.fs
+GCLParser.fsi
+build.sh
+mandatory.fsproj
+mandatory.sln
+obj/
+packages.config
+packages/

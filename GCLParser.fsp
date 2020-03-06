@@ -1,0 +1,25 @@
+%{
+%}
+
+%token <string> STRING
+%token <float> NUM
+%token TIMES DIV PLUS MINUS POW LPAR RPAR ASSIGN EOF
+
+// Specify precedence and associativity of operators
+// Precedence is given by the order (from low to high)
+%left PLUS MINUS
+%left TIMES DIV
+%right POW
+
+// start
+%start start
+
+%type <expr> start
+%type <expr> expression
+
+
+%%
+
+start: ME NAME EOF                       { $2 }
+
+%%
