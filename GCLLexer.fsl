@@ -6,15 +6,41 @@ open GCLParser
 open FSharp.Text.Lexing
 open System.Text
 
+let boolOps =   
+    [   
+        "=",    EQ;   
+        "<",    LT;   
+        "<=",   LE;   
+        ">",    GT;   
+        ">=",   GE;
+        "&",    AND;
+        "&&",   SAND;
+        "|",    OR;
+        "||",   SOR;
+        "!",    NOT;
+        "!=",   NOTEQ;   
+    ] |> Map.ofList   
+
+let arithOps =   
+    [   
+        "*",    TIMES;
+        "/",    DIV;
+        "+",    PLUS;
+        "-",    MINUS;
+        "^",    POW;
+    ] |> Map.ofList   
+
 }
 
-let char        = ['a'-'z' 'A'-'Z']
-let digit       = ['0'-'9']
-let num         = digit+ ( '.' digit+)?  ('E' ('+'|'-')? digit+ )?
-let whitespace  = [' ' '\t']
-let newline     = "\n\r" | '\n' | '\r'
+let char          = ['a'-'z' 'A'-'Z']
+let digit         = ['0'-'9']
+let num           = digit+ ( '.' digit+)?  ('E' ('+'|'-')? digit+ )?
+let whitespace    = [' ' '\t']
+let newline       = "\n\r" | '\n' | '\r'
 let string        = char(char|digit)*
-let bool = "true" | "false"
+let bool          = "true" | "false"
+let boolOperator  = "<" | ">" | "=" | ">=" | "<=" | "&" | "&&" | "|" | "||" | "!" | "!="
+let arithOperator = "*" | "/" | "+" | "-" | "^"
 
 rule tokenize = parse
 | whitespace    { tokenize lexbuf }
@@ -22,11 +48,8 @@ rule tokenize = parse
 | num           { NUM(Double.Parse(LexBuffer<_>.LexemeString lexbuf)) }
 | bool			{ BOOL(Boolean.Parse(LexBuffer<_>.LexemeString lexbuf)) }
 | string        { let str = LexBuffer<_>.LexemeString lexbuf in STRING(str) }
-| '*'           { TIMES }
-| '/'           { DIV }
-| '+'           { PLUS }
-| '-'           { MINUS }
-| '^'           { POW }
+| boolOperator  {boolOps.[LexBuffer<_>.LexemeString lexbuf]}
+| arithOperator {arithOps.[LexBuffer<_>.LexemeString lexbuf]}
 | '('           { LPAR }
 | ')'           { RPAR }
 | "["           { LBRAK }
@@ -34,24 +57,10 @@ rule tokenize = parse
 | "[]"          { COND }
 | ":="			{ ASSIGN }
 | "->"          { THEN }
-| "<"           { LT  }
-| ">"           { GT  }
-| "="           { EQ  }
-| ">="          { GE  } 
-| "<="          { LE  }
-| "&"           { AND }
-| "&&"          { SAND }
-| "|"           { OR  }
-| "||"          { SOR }
-| "!"           { NOT }
-| "!="          { NOTEQ }
-| "if "         { IF }
-| " fi"         { FI }
-| "do "         { DO }
-| " od"         { OD}
+| "if"whitespace{ IF }
+| whitespace"fi"{ FI }
+| "do"whitespace{ DO }
+| whitespace"od"{ OD}
 | ";"           { SEMI }
 | eof           { EOF }
-
 | _ { raise (Exception (sprintf "SyntaxError: Unexpected char: '%s' Line: %d Column: %d" (LexBuffer<_>.LexemeString lexbuf) (lexbuf.StartPos.Line+1) lexbuf.StartPos.Column)) }
-
-
