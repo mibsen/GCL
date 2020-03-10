@@ -2,6 +2,8 @@
 
 open FSharp.Text.Lexing
 open System
+open System.IO
+
 
 #load "GCLAST.fs"
 open GCLAST
@@ -12,8 +14,31 @@ open GCLParser
 #load "GCLLexer.fs"
 open GCLLexer
 
-let input = Console.ReadLine()
-printfn "%s" input
+
+let getPath = 
+    try 
+        let args: string array = System.Environment.GetCommandLineArgs()
+        args.[2]
+     
+    with e -> 
+        printfn "Insert Path to file"
+        Console.ReadLine()   
+
+let path = getPath
+
+printfn "%s" path
+printfn "Reading file content"
+
+
+let getInput path=
+    try 
+        File.ReadAllText path
+    with e -> 
+        failwith ("could not read file: " + path)
+        null
+
+let input = getInput path
+
 try
     let lexbuf = LexBuffer<char>.FromString input
     
@@ -23,7 +48,7 @@ try
        printfn "%s" (GCLAST.print res)
        
         
-     with e -> printfn "Parse: %s" e.Message
+     with e -> printfn "Parse error at : Line %i, %i" lexbuf.EndPos.Line lexbuf.EndPos.Column
                
  with e -> printfn "ERROR: %s" e.Message
           

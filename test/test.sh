@@ -7,7 +7,7 @@ for f in $FILES
 do
   echo "Processing $f file..."
 
-  cat $f | tr -d "\n" | fsi.exe ../GCL.fsx      
+  fsi.exe ../GCL.fsx $f     
 
 
 done

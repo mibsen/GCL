@@ -66,15 +66,17 @@ let rec printB b =
     | Eq (a1, a2) -> sprintf "%s = %s" (printA a1) (printA a2)
     | NotEq (a1, a2) -> sprintf "%s != %s" (printA a1) (printA a2)
 
-let rec print c = 
+let rec printC c i= 
     match c with
-    | Assign (x , a) -> sprintf "%s := %s" x (printA a) 
-    | ArrayAssign (x , a1 , a2) ->  sprintf "%s[%s] := %s" x (printA a1) (printA a2) 
+    | Assign (x , a) -> sprintf "%s%s := %s"i x (printA a) 
+    | ArrayAssign (x , a1 , a2) ->  sprintf "%s %s[%s] := %s" i x (printA a1) (printA a2) 
     | Skip ->  sprintf "skip" 
-    | Sequential (C1 , C2) -> sprintf "%s;\n %s" (print C1) (print C2)  
-    | If (gc) -> sprintf "if %s fi" (printGC gc)  
-    | Do (gc) -> sprintf "do %s od" (printGC gc)  
-and printGC gc = 
+    | Sequential (C1 , C2) -> sprintf " %s; \n %s" (printC C1 i) (printC C2 i)  
+    | If (gc) -> sprintf "%sif %s \n%sfi" i (printGC gc (i)) i
+    | Do (gc) -> sprintf "%sdo %s \n%sod" i (printGC gc (i+"    ")) i  
+and printGC gc i = 
     match gc with
-    | Choice (b , C) -> sprintf " %s -> %s" (printB b) (print C)  
-    | Conditional (gc1 , gc2) -> sprintf " %s \n[] %s" (printGC gc1) (printGC gc2)  
+    | Choice (b , C) -> sprintf "%s%s -> %s" i (printB b) (printC C i)  
+    | Conditional (gc1 , gc2) -> sprintf " %s \n[] %s" (printGC gc1 i) (printGC gc2 i) 
+    
+let print c = printC c ""
