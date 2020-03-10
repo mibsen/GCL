@@ -26,8 +26,7 @@ and  a =
 and x = string
 
 and b = 
-    | True 
-    | False
+    | Bool of bool
     | SAnd of (b * b)
     | SOr of (b * b)
     | And of (b * b)
@@ -54,8 +53,7 @@ let rec printA a =
 
 let rec printB b =
     match b with
-    | True -> string "true"
-    | False -> string "false"
+    | Bool (b) -> string b
     | SAnd (b1 , b2) -> sprintf "%s & %s" (printB b1) (printB b2) 
     | SOr (b1 , b2) -> sprintf "%s | %s" (printB b1) (printB b2) 
     | And (b1 , b2) -> sprintf "%s && %s" (printB b1) (printB b2) 

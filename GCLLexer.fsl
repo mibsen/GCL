@@ -14,13 +14,13 @@ let num         = digit+ ( '.' digit+)?  ('E' ('+'|'-')? digit+ )?
 let whitespace  = [' ' '\t']
 let newline     = "\n\r" | '\n' | '\r'
 let string        = char(char|digit)*
+let bool = "true" | "false"
 
 rule tokenize = parse
 | whitespace    { tokenize lexbuf }
 | newline       { lexbuf.EndPos <- lexbuf.EndPos.NextLine; tokenize lexbuf; }
 | num           { NUM(Double.Parse(LexBuffer<_>.LexemeString lexbuf)) }
-| "true"		{ TRUE }
-| "false"		{ FALSE}
+| bool			{ BOOL(Boolean.Parse(LexBuffer<_>.LexemeString lexbuf)) }
 | string        { let str = LexBuffer<_>.LexemeString lexbuf in STRING(str) }
 | '*'           { TIMES }
 | '/'           { DIV }
