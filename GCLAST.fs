@@ -44,41 +44,39 @@ let rec printA a =
     match a with
     | N n-> sprintf "%f" n
     | X x-> sprintf "%s" x
-    | ArrayAccess (x , a) ->  sprintf "%s[%s]" x (printA a)
-    | Plus (a1 , a2) -> sprintf "%s + %s" (printA a1) (printA a2)
-    | Minus (a1, a2) -> sprintf "%s - %s" (printA a1) (printA a2)
-    | Multiply (a1, a2) -> sprintf "%s * %s" (printA a1) (printA a2)
-    | Divide (a1, a2) -> sprintf "%s / %s" (printA a1) (printA a2)
-    | Pow (a1, a2) -> sprintf "%s^%s" (printA a1) (printA a2)
-    | UMinus (a) -> sprintf "-%s" (printA a)
+    | ArrayAccess (x , a) ->  sprintf "ArrayAccess(%s, %s)" x (printA a)
+    | Plus (a1 , a2) -> sprintf "Plus(%s, %s)" (printA a1) (printA a2)
+    | Minus (a1, a2) -> sprintf "Minus(%s, %s)" (printA a1) (printA a2)
+    | Multiply (a1, a2) -> sprintf "Multiply(%s, %s)" (printA a1) (printA a2)
+    | Divide (a1, a2) -> sprintf "Divide(%s, %s)" (printA a1) (printA a2)
+    | Pow (a1, a2) -> sprintf "Pow(%s, %s)" (printA a1) (printA a2)
+    | UMinus (a) -> sprintf "UMinus(%s)" (printA a)
 
 let rec printB b =
     match b with
     | True -> string "true"
     | False -> string "false"
-    | SAnd (b1 , b2) -> sprintf "%s & %s" (printB b1) (printB b2) 
-    | SOr (b1 , b2) -> sprintf "%s | %s" (printB b1) (printB b2) 
-    | And (b1 , b2) -> sprintf "%s && %s" (printB b1) (printB b2) 
-    | Or (b1 , b2) -> sprintf "%s || %s" (printB b1) (printB b2) 
-    | Not (b) ->  sprintf "!%s" (printB b)
-    | Gt (a1, a2) -> sprintf "%s < %s" (printA a1) (printA a2) 
-    | Lt (a1, a2) -> sprintf "%s > %s" (printA a1) (printA a2) 
-    | Le (a1, a2) -> sprintf "%s <= %s" (printA a1) (printA a2) 
-    | Ge (a1, a2) -> sprintf "%s >= %s" (printA a1) (printA a2) 
-    | Eq (a1, a2) -> sprintf "%s = %s" (printA a1) (printA a2)
-    | NotEq (a1, a2) -> sprintf "%s != %s" (printA a1) (printA a2)
+    | And (b1 , b2) -> sprintf "And(%s, %s)" (printB b1) (printB b2) 
+    | Or (b1 , b2) -> sprintf "Or(%s, %s)" (printB b1) (printB b2) 
+    | SAnd (b1 , b2) -> sprintf "SAnd(%s, %s)" (printB b1) (printB b2) 
+    | SOr (b1 , b2) -> sprintf "SOr(%s, %s)" (printB b1) (printB b2) 
+    | Not (b) ->  sprintf "Not(%s)" (printB b)
+    | Gt (a1, a2) -> sprintf "Gt(%s, %s)" (printA a1) (printA a2) 
+    | Lt (a1, a2) -> sprintf "Lt(%s, %s)" (printA a1) (printA a2) 
+    | Le (a1, a2) -> sprintf "Le(%s, %s)" (printA a1) (printA a2) 
+    | Ge (a1, a2) -> sprintf "Ge(%s, %s)" (printA a1) (printA a2) 
+    | Eq (a1, a2) -> sprintf "Eq(%s, %s)" (printA a1) (printA a2)
+    | NotEq (a1, a2) -> sprintf "NotEq(%s, %s)" (printA a1) (printA a2)
 
-let rec printC c i= 
+let rec print c= 
     match c with
-    | Assign (x , a) -> sprintf "%s%s := %s"i x (printA a) 
-    | ArrayAssign (x , a1 , a2) ->  sprintf "%s %s[%s] := %s" i x (printA a1) (printA a2) 
+    | Assign (x , a) -> sprintf "Assign(%s, %s)" x (printA a) 
+    | ArrayAssign (x , a1 , a2) ->  sprintf "ArrayAssign(%s[%s], %s)" x (printA a1) (printA a2) 
     | Skip ->  sprintf "skip" 
-    | Sequential (C1 , C2) -> sprintf " %s; \n %s" (printC C1 i) (printC C2 i)  
-    | If (gc) -> sprintf "%sif %s \n%sfi" i (printGC gc (i)) i
-    | Do (gc) -> sprintf "%sdo %s \n%sod" i (printGC gc (i+"    ")) i  
-and printGC gc i = 
+    | Sequential (C1 , C2) -> sprintf "Seq(%s, \n %s)" (print C1) (print C2)  
+    | If (gc) -> sprintf "If(%s)" (printGC gc) 
+    | Do (gc) -> sprintf "Do(%s)" (printGC gc)
+and printGC gc = 
     match gc with
-    | Choice (b , C) -> sprintf "%s%s -> %s" i (printB b) (printC C i)  
-    | Conditional (gc1 , gc2) -> sprintf " %s \n[] %s" (printGC gc1 i) (printGC gc2 i) 
-    
-let print c = printC c ""
+    | Choice (b , C) -> sprintf "Choice(%s, %s)" (printB b) (print C)  
+    | Conditional (gc1 , gc2) -> sprintf "Conditional(%s, %s)" (printGC gc1) (printGC gc2) 
