@@ -19,6 +19,8 @@ rule tokenize = parse
 | whitespace    { tokenize lexbuf }
 | newline       { lexbuf.EndPos <- lexbuf.EndPos.NextLine; tokenize lexbuf; }
 | num           { NUM(Double.Parse(LexBuffer<_>.LexemeString lexbuf)) }
+| "true"		{ TRUE }
+| "false"		{ FALSE}
 | string        { let str = LexBuffer<_>.LexemeString lexbuf in STRING(str) }
 | '*'           { TIMES }
 | '/'           { DIV }
@@ -49,6 +51,7 @@ rule tokenize = parse
 | " od"         { OD}
 | ";"           { SEMI }
 | eof           { EOF }
+
 | _ { raise (Exception (sprintf "SyntaxError: Unexpected char: '%s' Line: %d Column: %d" (LexBuffer<_>.LexemeString lexbuf) (lexbuf.StartPos.Line+1) lexbuf.StartPos.Column)) }
 
 
