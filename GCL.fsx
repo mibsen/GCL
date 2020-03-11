@@ -47,8 +47,6 @@ try
        printfn "COMPILED - Pretty print"
        printfn "%s" (GCLAST.print res)
        
-        
-     with e -> printfn "Parse error at : Line %i, %i" lexbuf.EndPos.Line lexbuf.EndPos.Column
-               
+     with e -> printfn "Parse error at : Line %i, %i" (lexbuf.EndPos.pos_lnum + 1) (lexbuf.EndPos.pos_cnum - lexbuf.EndPos.pos_bol)
  with e -> printfn "ERROR: %s" e.Message
           
