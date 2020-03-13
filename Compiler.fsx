@@ -47,16 +47,13 @@ try
     try 
        let res = GCLParser.start GCLLexer.tokenize lexbuf
  
- 
-       let final = Final("q(final)\u25C0")                                
-       let compiled = Node("q(start)\u25B7", 
-                                let (edge,_) = buildC res final 1
-                                edge     
-                               )
+       try
+        let final = createNode "q(final)\u25C0" []                                
+        let (compiled,_) = PG.buildC res final 0
    
-       printfn "COMPILED - Printing Graph"
-       printfn "-------"
-       PG.printGraph compiled
-       
+        printfn "COMPILED - Printing Graph"
+        printfn "-------"
+        PG.printGraph compiled
+       with e -> printfn "%s" e.StackTrace
      with e -> printfn "Parse error at : Line %i, %i" (lexbuf.EndPos.pos_lnum + 1) (lexbuf.EndPos.pos_cnum - lexbuf.EndPos.pos_bol)
  with e -> printfn "ERROR: %s" e.Message

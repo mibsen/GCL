@@ -1,8 +1,10 @@
 ﻿module PG
 
 type Node =
-    | Final of (string)
-    | Node of (string * Edge list) 
+    {mutable Name : string;
+    mutable Edges : Edge list;
+    mutable Printed : bool;
+    }
 and Edge = // needs one for each unique edge logic
     |  AssignE of (x*a*Node)
     |  ArrayAssignE of (x * a * a * Node)
@@ -36,47 +38,63 @@ and getAString a =
     | Divide (a1, a2) -> sprintf "%s / %s" (getAString a1) (getAString a2)
     | Pow (a1, a2) -> sprintf "%s^%s" (getAString a1) (getAString a2)
     | UMinus (a) -> sprintf "-%s" (getAString a)
+let createNode name edges = 
+                            {Name = name; Edges = edges; Printed = false}
+let getNodeName number = if number = 0 then "Start" else sprintf "q%i" number
+let createNodeN number edges =  createNode (getNodeName number) edges
 
 let rec buildC c final n = 
     match c with
-    | Assign (x , a) ->  [AssignE(x,a,final)] , n 
-    | ArrayAssign (x,a1,a2) -> [ArrayAssignE(x,a1,a2,final)] , n
-    | Skip -> [SkipE (final)], n
-    | Sequential (C1 , C2) ->  let (edges,n2) = buildC C2 final (n + 1)
-                               let q = Node ("q"+string(n)  , edges )
-                               buildC C1 q n2
-    | If (gc) ->  buildGC gc final n
-//    | Do (gc) -> sprintf "Do(%s)" (printGC gc)
+    | Assign (x , a) ->  (createNodeN n [AssignE(x,a,final)]) , n+1 
+    | ArrayAssign (x,a1,a2) -> (createNodeN n [ArrayAssignE(x,a1,a2,final)]) , n+1
+    | Skip -> (createNodeN n [SkipE (final)]), n+1
+    | Sequential (C1 , C2) ->
+                               let (no,n2) = buildC C2 final (n + 1)
+                               let (nno, n3) = buildC C1 no n2                                                           
+                               nno.Name <- getNodeName n
+                               nno, n3
+    | If (gc) -> let (edges,n2) = buildGC gc final (n+1)  
+                 (createNodeN n edges), n2
+    | Do (gc) -> let node =  (createNodeN n []) 
+                 let (edges,n2) = buildGC gc node (n+1) 
+                 node.Edges <- List.append edges [ChoiseE(FindBoolConditions edges,final)]
+                 node, n2
+
+and FindBoolConditions edges  = 
+    match edges with
+    | ChoiseE(b,_) :: [] -> Not(b)
+    | ChoiseE(b,_)::rest -> And(Not (b),FindBoolConditions rest)
+    | _::rest -> FindBoolConditions rest
+
 and buildGC gc final n = 
     match gc with
-    | Choice (b , C) -> let (edges,n2) = buildC C final (n+1)
-                        [ChoiseE (b, Node ("q"+ string(n), edges))] , n2
+    | Choice (b , C) -> let (node,n2) = buildC C final (n)
+                        [ChoiseE (b, node)] , n2
     | Conditional (gc1 , gc2) -> let (Edges,n1) = buildGC gc1 final n
                                  let (Edges2,n2) = buildGC gc2 final n1
                                  (List.append Edges Edges2 ), n2
                               
-let rec printNode com = 
-    match com with
-    | Node (name,edges) -> List.forall (fun e -> printEdge e name ) edges                        
-    | _ ->  true
-and getNodeName n =
-    match n with
-    | Node (name,_) -> name
-    | Final (name) -> name
-and printEdge edge name = 
+let rec printNode com printed = if not (List.contains com.Name printed )
+                                then
+                                    let p = com.Name::printed
+                                    List.iter (fun e -> printEdge e com.Name p ) com.Edges                              
+and printEdge edge name printed = 
     match edge with
-    |  AssignE (x,a,node) ->  printfn "%s -> %s [label = \"%s=%s\"];" name (getNodeName node) x (getAString a)
-                              printNode node
-    |  ArrayAssignE (x,a1,a2,node) ->  printfn "%s -> %s [label = \"%s[%s]=%s\"];" name (getNodeName node) x (getAString a1) (getAString a2)
-                                       printNode node
+    |  AssignE (x,a,node) ->  printfn "%s -> %s [label = \"%s=%s\"];" name node.Name x (getAString a)
+                              printNode node printed
+
+    |  ArrayAssignE (x,a1,a2,node) ->  printfn "%s -> %s [label = \"%s[%s]=%s\"];" name node.Name x (getAString a1) (getAString a2)
+                                       printNode node printed
     |  SkipE (node) ->   printfn "Skip" 
-                         printNode node
-    | ChoiseE (b, node) -> printfn "%s -> %s [label = \"%s\"];" name (getNodeName node) (getBString b)
-                           printNode node  
+                         printNode node printed
+
+    | ChoiseE (b, node) -> printfn "%s -> %s [label = \"%s\"];" name node.Name (getBString b)
+                           printNode node printed 
+
 and printGraph com =
     printfn "digraph program_graph {rankdir=LR;"
     printfn "node [shape = circle]; q▷;"
     printfn "node [shape = doublecircle]; q◀;"
     printfn "node [shape = circle]"
-    let _ = printNode com
+    let _ = printNode com []
     printfn "}"
