@@ -49,10 +49,14 @@ let rec buildC c final n deterministic =
     | ArrayAssign (x,a1,a2) -> (createNodeN n [ArrayAssignE(x,a1,a2,final)]) , n+1
     | Skip -> (createNodeN n [SkipE (final)]), n+1
     | Sequential (C1 , C2) ->
-                               let (no,n2) = buildC C2 final (n + 1) deterministic
-                               let (nno, n3) = buildC C1 no n2 deterministic                                                            
-                               nno.Name <- getNodeName n
-                               nno, n3
+                               let nnn = createNodeN n [] 
+                               let (no,n2) = buildC C1 nnn (n) deterministic
+                               let (nno, n3) = buildC C2 final (n2) deterministic                                                            
+                               nnn.Name <- nno.Name 
+                               nnn.Edges <- nno.Edges 
+                               
+                               //nno.Name <- getNodeName n
+                               no, n3
     | If (gc) -> let (edges,n2, _) = buildGC gc final (n+1) (Bool(false)) deterministic  
                  (createNodeN n edges), n2
     | Do (gc) -> let node =  (createNodeN n []) 
