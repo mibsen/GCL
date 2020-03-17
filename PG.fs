@@ -20,7 +20,7 @@ let rec getBString b =
     | SOr (b1 , b2) -> sprintf "%s || %s" (getBString b1) (getBString b2) 
     | And (b1 , b2) -> sprintf "%s & %s" (getBString b1) (getBString b2) 
     | Or (b1 , b2) -> sprintf "%s | %s" (getBString b1) (getBString b2) 
-    | Not (b) ->  sprintf "(!%s)" (getBString b)
+    | Not (b) ->  sprintf "!(%s)" (getBString b)
     | Gt (a1, a2) -> sprintf "(%s > %s)" (getAString a1) (getAString a2) 
     | Lt (a1, a2) -> sprintf "(%s < %s)" (getAString a1) (getAString a2) 
     | Le (a1, a2) -> sprintf "(%s <= %s)" (getAString a1) (getAString a2) 
@@ -29,7 +29,7 @@ let rec getBString b =
     | NotEq (a1, a2) -> sprintf "(%s != %s)" (getAString a1) (getAString a2)
 and getAString a =
     match a with
-    | N n-> sprintf "%f" n
+    | N n-> sprintf "%i" n
     | X x-> sprintf "%s" x
     | ArrayAccess (x , a) ->  sprintf "%s[%s]" x (getAString a)
     | Plus (a1 , a2) -> sprintf "%s + %s" (getAString a1) (getAString a2)
@@ -60,23 +60,25 @@ let rec buildC c final n deterministic =
     | If (gc) -> let (edges,n2, _) = buildGC gc final (n+1) (Bool(false)) deterministic  
                  (createNodeN n edges), n2
     | Do (gc) -> let node =  (createNodeN n []) 
+                 let boolconds = FindBoolConditions gc
                  let (edges,n2, _) = buildGC gc node (n+1) (Bool(false)) deterministic 
-                 node.Edges <- List.append edges [ChoiceE(FindBoolConditions edges,final)]
+                 node.Edges <- List.append edges [ChoiceE(boolconds,final)]
                  node, n2
 
-and FindBoolConditions edges  = 
-    match edges with
-    | [] -> Bool(true)
-    | [ChoiceE(b,_)] -> Not(b)
-    | ChoiceE(b,_)::rest -> And(Not (b),FindBoolConditions rest)
-    | _::rest -> FindBoolConditions rest
-
+and FindBoolConditions gc  = 
+    match gc with
+    | Choice (b , _) -> Not(b)
+    | Conditional (gc1 , gc2) -> And((FindBoolConditions gc1), (FindBoolConditions gc2))
 
 and buildGC gc final n prev deterministic = 
     if deterministic then
         match gc with
-        | Choice (b , C) -> let (node,n2) = buildC C final (n) deterministic
-                            [ChoiceE (And(b, Not(prev)), node)] , n2, And(b, Not(prev))
+        | Choice (b , C) -> match prev with 
+                            | Bool(false) -> let (node,n2) = buildC C final (n) deterministic
+                                             [ChoiceE (b, node)] , n2, b
+                            | _           -> let (node,n2) = buildC C final (n) deterministic
+                                             [ChoiceE (And(b, Not(prev)), node)] , n2, And(b, Not(prev))
+                            
         | Conditional (gc1 , gc2) -> let (Edges,n1, prev2) = buildGC gc1 final n prev deterministic
                                      let (Edges2,n2, prev3) = buildGC gc2 final n1 prev2 deterministic
                                      (List.append Edges Edges2 ), n2, prev3

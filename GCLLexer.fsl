@@ -34,7 +34,7 @@ let arithOps =
 
 let char          = ['a'-'z' 'A'-'Z']
 let digit         = ['0'-'9']
-let num           = digit+ ( '.' digit+)?  ('E' ('+'|'-')? digit+ )?
+let num           = digit+
 let whitespace    = [' ' '\t']
 let newline       = "\n\r" | '\n' | '\r'
 let string        = char(char|digit)*
@@ -45,7 +45,7 @@ let arithOperator = "*" | "/" | "+" | "-" | "^"
 rule tokenize = parse
 | whitespace    { tokenize lexbuf }
 | newline       { lexbuf.EndPos <- lexbuf.EndPos.NextLine; tokenize lexbuf; }
-| num           { NUM(Double.Parse(LexBuffer<_>.LexemeString lexbuf)) }
+| num           { NUM(int (LexBuffer<_>.LexemeString lexbuf)) }
 | bool			{ BOOL(Boolean.Parse(LexBuffer<_>.LexemeString lexbuf)) }
 | string        { let str = LexBuffer<_>.LexemeString lexbuf in STRING(str) }
 | boolOperator  {boolOps.[LexBuffer<_>.LexemeString lexbuf]}
