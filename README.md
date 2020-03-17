@@ -22,6 +22,7 @@ Prints the graph in the textual graphviz format.
 
 Example:
 `fsi.exe GCL.fsx ./test/cases/case0.txt true`
+
 This will print a deterministic version of the program graph
 
 
