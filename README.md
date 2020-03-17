@@ -15,6 +15,9 @@ The solution is built using FsLexYacc.
 
 Prints the AST for the parsed source code or an error explaining where the error happened.
 
+Example:
+`fsi.exe GCL.fsx ./test/cases/case0.txt` 
+
 ## How to run the compiler
 `fsi.exe Compiler.fsx <Path to source file> <true or false to construct deterministic graph (false is default)>` 
 
