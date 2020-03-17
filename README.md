@@ -16,12 +16,12 @@ The solution is built using FsLexYacc.
 Prints the AST for the parsed source code or an error explaining where the error happened.
 
 ## How to run the compiler
-`fsi.exe GCL.fsx <Path to source file> <true or false to construct deterministic graph (false is default)>` 
+`fsi.exe Compiler.fsx <Path to source file> <true or false to construct deterministic graph (false is default)>` 
 
 Prints the graph in the textual graphviz format.
 
 Example:
-`fsi.exe GCL.fsx ./test/cases/case0.txt true`
+`fsi.exe Compiler.fsx ./test/cases/case0.txt true`
 
 This will print a deterministic version of the program graph
 
