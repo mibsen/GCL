@@ -26,8 +26,16 @@ let getPath =
         printfn "Insert Path to file"
         Console.ReadLine()   
 
+let getDeterministic =
+    try 
+        let args: string array = System.Environment.GetCommandLineArgs()
+        Boolean.Parse(args.[3])
+    with e -> 
+        false
 let path = getPath
+let deterministic = getDeterministic
 
+printfn "Deterministic: %b" deterministic
 printfn "%s" path
 printfn "Reading file content"
 
@@ -49,7 +57,7 @@ try
  
        try
         let final = createNode "q(final)\u25C0" []                                
-        let (compiled,_) = PG.buildC res final 0
+        let (compiled,_) = PG.buildC res final 0 deterministic
    
         printfn "COMPILED - Printing Graph"
         printfn "-------"
