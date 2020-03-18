@@ -91,7 +91,17 @@ and buildGC gc final n prev deterministic =
 let rec printNode com printed = if not (List.contains com.Name printed )
                                 then
                                     let p = com.Name::printed
-                                    List.iter (fun e -> printEdge e com.Name p ) com.Edges                              
+                                    printEdges com.Edges com.Name p
+                                    //List.iter (fun e -> printEdge e com.Name p ) com.Edges 
+                                else
+                                    printed
+and printEdges edges name printed = 
+    match edges with
+    | [] -> printed
+    | edge::rest -> let p = printEdges rest name printed
+                    let p2 = printEdge edge name p
+                    List.append p p2
+
 and printEdge edge name printed = 
     match edge with
     |  AssignE (x,a,node) ->  printfn "%s -> %s [label = \"%s:=%s\"];" name node.Name x (getAString a)
