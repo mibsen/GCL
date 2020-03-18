@@ -3,7 +3,7 @@ open GCLAST
 %}
 
 %token <string> STRING
-%token <float> NUM
+%token <int> NUM
 %token <bool> BOOL
 %token TIMES DIV PLUS MINUS POW LPAR RPAR ASSIGN EOF
 %token LBRAK RBRAK SKIP IF FI DO OD THEN COND SEMI

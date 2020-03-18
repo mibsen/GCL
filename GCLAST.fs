@@ -13,7 +13,7 @@ and gc =
     | Conditional of (gc * gc)
 
 and  a = 
-    | N of float
+    | N of int
     | X of x
     | ArrayAccess of (x * a)
     | Plus of (a * a)
@@ -41,7 +41,7 @@ and b =
  
 let rec printA a =
     match a with
-    | N n-> sprintf "%f" n
+    | N n-> sprintf "%i" n
     | X x-> sprintf "%s" x
     | ArrayAccess (x , a) ->  sprintf "ArrayAccess(%s, %s)" x (printA a)
     | Plus (a1 , a2) -> sprintf "Plus(%s, %s)" (printA a1) (printA a2)
