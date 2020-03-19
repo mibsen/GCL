@@ -43,7 +43,8 @@ let createNode name edges =
 let getNodeName number = if number = 0 then "qS" else sprintf "q%i" number
 let createNodeN number edges =  createNode (getNodeName number) edges
 
-//Construction of command edges
+//Construction of command edges. Special logic is need for sequential compositioning
+//and If and Do statements since they themselves contain commands
 let rec buildC c final n deterministic = 
     match c with
     | Assign (x , a) ->  (createNodeN n [AssignE(x,a,final)]) , n+1 
