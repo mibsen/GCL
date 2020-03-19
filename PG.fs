@@ -1,5 +1,6 @@
 ﻿module PG
 
+//Data structure for the program graph
 type Node =
     {mutable Name : string;
     mutable Edges : Edge list;
@@ -11,9 +12,7 @@ and Edge = // needs one for each unique edge logic
     |  SkipE of (Node)
     |  ChoiceE of (b * Node)
     
-
 // Printing Edge Labels for the arithmetics and booleans
-// TODO: this might need some brackets
 let rec getBString b =
     match b with
     | Bool (b) -> String.collect (fun c -> (string (System.Char.ToLower c))) (string b)
@@ -44,6 +43,7 @@ let createNode name edges =
 let getNodeName number = if number = 0 then "qS" else sprintf "q%i" number
 let createNodeN number edges =  createNode (getNodeName number) edges
 
+//Construction of command edges
 let rec buildC c final n deterministic = 
     match c with
     | Assign (x , a) ->  (createNodeN n [AssignE(x,a,final)]) , n+1 
@@ -55,8 +55,6 @@ let rec buildC c final n deterministic =
                                let (nno, n3) = buildC C2 final (n2) deterministic                                                            
                                nnn.Name <- nno.Name 
                                nnn.Edges <- nno.Edges 
-                               
-                               //nno.Name <- getNodeName n
                                no, n3
     | If (gc) -> let (edges,n2, _) = buildGC gc final (n+1) (Bool(false)) deterministic  
                  (createNodeN n edges), n2
@@ -66,20 +64,19 @@ let rec buildC c final n deterministic =
                  node.Edges <- List.append edges [ChoiceE(Not(boolconds),final)]
                  node, n2
 
+//The negation of this funtions output corresponds to the "done" function in the book Formal Methods
 and FindBoolConditions gc  = 
     match gc with
     | Choice (b , _) -> b
     | Conditional (gc1 , gc2) -> Or((FindBoolConditions gc2), (FindBoolConditions gc1))
 
+//Construction of guarded command edges. Different logic is needed for constructing deterministic
+//and non-determinictic program graphs
 and buildGC gc final n prev deterministic = 
     if deterministic then
         match gc with
-        | Choice (b , C) -> match prev with 
-                            | Bool(false) -> let (node,n2) = buildC C final (n) deterministic
-                                             [ChoiceE (b, node)] , n2, b
-                            | _           -> let (node,n2) = buildC C final (n) deterministic
-                                             [ChoiceE (And(b, Not(prev)), node)] , n2, Or(b, prev)
-                            
+        | Choice (b , C) -> let (node,n2) = buildC C final (n) deterministic
+                            [ChoiceE (And(b, Not(prev)), node)] , n2, Or(b, prev)                 
         | Conditional (gc1 , gc2) -> let (Edges,n1, prev2) = buildGC gc1 final n prev deterministic
                                      let (Edges2,n2, prev3) = buildGC gc2 final n1 prev2 deterministic
                                      (List.append Edges Edges2 ), n2, prev3
@@ -90,12 +87,12 @@ and buildGC gc final n prev deterministic =
         | Conditional (gc1 , gc2) -> let (Edges,n1, _) = buildGC gc1 final n (Bool(false)) deterministic
                                      let (Edges2,n2, _) = buildGC gc2 final n1 (Bool(false)) deterministic
                                      (List.append Edges Edges2 ), n2, prev
-                              
+
+//Functions for printing the program graph in the graphviz format                                                                   
 let rec printNode com printed = if not (List.contains com.Name printed )
                                 then
                                     let p = com.Name::printed
                                     printEdges com.Edges com.Name p
-                                    //List.iter (fun e -> printEdge e com.Name p ) com.Edges 
                                 else
                                     printed
 and printEdges edges name printed = 
