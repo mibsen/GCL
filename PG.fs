@@ -11,36 +11,37 @@ and Edge = // needs one for each unique edge logic
     |  SkipE of (Node)
     |  ChoiceE of (b * Node)
     
+
 // Printing Edge Labels for the arithmetics and booleans
 // TODO: this might need some brackets
 let rec getBString b =
     match b with
-    | Bool (b) -> string b
-    | SAnd (b1 , b2) -> sprintf "%s && %s" (getBString b1) (getBString b2) 
-    | SOr (b1 , b2) -> sprintf "%s || %s" (getBString b1) (getBString b2) 
-    | And (b1 , b2) -> sprintf "%s & %s" (getBString b1) (getBString b2) 
-    | Or (b1 , b2) -> sprintf "%s | %s" (getBString b1) (getBString b2) 
+    | Bool (b) -> String.collect (fun c -> (string (System.Char.ToLower c))) (string b)
+    | SAnd (b1 , b2) -> sprintf "(%s)&&(%s)" (getBString b1) (getBString b2) 
+    | SOr (b1 , b2) -> sprintf "(%s)||(%s)" (getBString b1) (getBString b2) 
+    | And (b1 , b2) -> sprintf "(%s)&(%s)" (getBString b1) (getBString b2) 
+    | Or (b1 , b2) -> sprintf "(%s)|(%s)" (getBString b1) (getBString b2) 
     | Not (b) ->  sprintf "!(%s)" (getBString b)
-    | Gt (a1, a2) -> sprintf "(%s > %s)" (getAString a1) (getAString a2) 
-    | Lt (a1, a2) -> sprintf "(%s < %s)" (getAString a1) (getAString a2) 
-    | Le (a1, a2) -> sprintf "(%s <= %s)" (getAString a1) (getAString a2) 
-    | Ge (a1, a2) -> sprintf "(%s >= %s)" (getAString a1) (getAString a2) 
-    | Eq (a1, a2) -> sprintf "(%s = %s)" (getAString a1) (getAString a2)
-    | NotEq (a1, a2) -> sprintf "(%s != %s)" (getAString a1) (getAString a2)
+    | Gt (a1, a2) -> sprintf "%s>%s" (getAString a1) (getAString a2) 
+    | Lt (a1, a2) -> sprintf "%s<%s" (getAString a1) (getAString a2) 
+    | Le (a1, a2) -> sprintf "%s<=%s" (getAString a1) (getAString a2) 
+    | Ge (a1, a2) -> sprintf "%s>=%s" (getAString a1) (getAString a2) 
+    | Eq (a1, a2) -> sprintf "%s=%s" (getAString a1) (getAString a2)
+    | NotEq (a1, a2) -> sprintf "%s!=%s" (getAString a1) (getAString a2)
 and getAString a =
     match a with
     | N n-> sprintf "%i" n
     | X x-> sprintf "%s" x
     | ArrayAccess (x , a) ->  sprintf "%s[%s]" x (getAString a)
-    | Plus (a1 , a2) -> sprintf "%s + %s" (getAString a1) (getAString a2)
-    | Minus (a1, a2) -> sprintf "%s - %s" (getAString a1) (getAString a2)
-    | Multiply (a1, a2) -> sprintf "%s * %s" (getAString a1) (getAString a2)
-    | Divide (a1, a2) -> sprintf "%s / %s" (getAString a1) (getAString a2)
+    | Plus (a1 , a2) -> sprintf "%s+%s" (getAString a1) (getAString a2)
+    | Minus (a1, a2) -> sprintf "%s-%s" (getAString a1) (getAString a2)
+    | Multiply (a1, a2) -> sprintf "%s*%s" (getAString a1) (getAString a2)
+    | Divide (a1, a2) -> sprintf "%s/%s" (getAString a1) (getAString a2)
     | Pow (a1, a2) -> sprintf "%s^%s" (getAString a1) (getAString a2)
     | UMinus (a) -> sprintf "-%s" (getAString a)
 let createNode name edges = 
                             {Name = name; Edges = edges; Printed = false}
-let getNodeName number = if number = 0 then "Start" else sprintf "q%i" number
+let getNodeName number = if number = 0 then "qS" else sprintf "q%i" number
 let createNodeN number edges =  createNode (getNodeName number) edges
 
 let rec buildC c final n deterministic = 
@@ -62,13 +63,13 @@ let rec buildC c final n deterministic =
     | Do (gc) -> let node =  (createNodeN n []) 
                  let boolconds = FindBoolConditions gc
                  let (edges,n2, _) = buildGC gc node (n+1) (Bool(false)) deterministic 
-                 node.Edges <- List.append edges [ChoiceE(boolconds,final)]
+                 node.Edges <- List.append edges [ChoiceE(Not(boolconds),final)]
                  node, n2
 
 and FindBoolConditions gc  = 
     match gc with
-    | Choice (b , _) -> Not(b)
-    | Conditional (gc1 , gc2) -> And((FindBoolConditions gc1), (FindBoolConditions gc2))
+    | Choice (b , _) -> b
+    | Conditional (gc1 , gc2) -> Or((FindBoolConditions gc2), (FindBoolConditions gc1))
 
 and buildGC gc final n prev deterministic = 
     if deterministic then
@@ -77,7 +78,7 @@ and buildGC gc final n prev deterministic =
                             | Bool(false) -> let (node,n2) = buildC C final (n) deterministic
                                              [ChoiceE (b, node)] , n2, b
                             | _           -> let (node,n2) = buildC C final (n) deterministic
-                                             [ChoiceE (And(b, Not(prev)), node)] , n2, And(b, Not(prev))
+                                             [ChoiceE (And(b, Not(prev)), node)] , n2, Or(b, prev)
                             
         | Conditional (gc1 , gc2) -> let (Edges,n1, prev2) = buildGC gc1 final n prev deterministic
                                      let (Edges2,n2, prev3) = buildGC gc2 final n1 prev2 deterministic
@@ -119,8 +120,8 @@ and printEdge edge name printed =
 
 and printGraph com =
     printfn "digraph program_graph {rankdir=LR;"
-    printfn "node [shape = circle]; q▷;"
-    printfn "node [shape = doublecircle]; q◀;"
+    printfn "node [shape = circle]; qS;"
+    printfn "node [shape = doublecircle]; qE;"
     printfn "node [shape = circle]"
     let _ = printNode com []
     printfn "}"

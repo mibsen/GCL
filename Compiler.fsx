@@ -56,7 +56,7 @@ try
        let res = GCLParser.start GCLLexer.tokenize lexbuf
  
        try
-        let final = createNode "q(final)\u25C0" []                                
+        let final = createNode "qE" []                                
         let (compiled,_) = PG.buildC res final 0 deterministic
    
         printfn "COMPILED - Printing Graph"
