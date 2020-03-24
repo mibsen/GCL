@@ -1,73 +1,70 @@
 module Interpret
 
-let rec evaluateEdges node es (map: Map<string, int>) =
-    match es with
-        | [] -> raise (System.InvalidOperationException("failed in evaluateEdges"))
-        | [e]-> let evalresult = evaluateEdge e map
-                match evalresult with 
-                    | Some(nodeN, mapN) -> if nodeN.Name = "qE" then
-                                              nodeN, mapN 
-                                           else
-                                              evaluateEdges nodeN node.Edges mapN
-                    | None -> raise (System.InvalidOperationException(node.Name))
-        | e::res -> let evalresult = evaluateEdge e map
-                    match evalresult with 
-                        | Some(nodeN, mapN) -> if nodeN.Name = "qE" then
-                                                  nodeN, mapN 
-                                               else
-                                                  evaluateEdges nodeN node.Edges mapN
-                        | None -> evaluateEdges node res map
+open System.Collections.Generic
 
-and evaluateEdge e (map: Map<string, int>) =
-    match e with
-        |AssignE(x, a, node) -> let value = evalArithExpr a map
-                                if map.ContainsKey x then
-                                    printfn "%i" value
-                                    Some(node, map.Add(x, value))
-                                else 
-                                    raise (System.InvalidOperationException("failed in AssignE"))
-        | ArrayAssignE(x, a1, a2, node) ->  let index = evalArithExpr a1 map
-                                            let value = evalArithExpr a2 map
-                                            let name = x + (string index)
-                                            if map.ContainsKey name then
-                                                 Some(node, map.Add(name, value))
-                                            else 
-                                                 raise (System.InvalidOperationException("failed in ArrayAssignE"))
-        | SkipE(node) -> Some(node, map)
-        | ChoiceE(b, node) -> let result = evalBoolExpr b map
-                              if result then
-                                  Some(node, map)
-                              else
-                                  None
+let rec interpret (Node(s)) (edgeList: Edge list) (remain: Edge list) (mem: Map<string, int>) =
+    match remain with
+    |[] -> raise (System.InvalidOperationException("failed in interpret"))
+    |Edge(Node(s1), logic, Node(s2))::res when s = s1 -> try
+                                                             let evalresult = evaluateEdge logic mem
+                                                             match evalresult with 
+                                                                | Some(memN,true) -> if s2 = "qE" then
+                                                                                        s2, memN 
+                                                                                     else
+                                                                                        interpret (Node(s2)) edgeList edgeList memN
+                                                                | Some(memN,false) -> interpret (Node(s1)) edgeList res memN
+                                                                | None -> s1, mem
+                                                         with | :? KeyNotFoundException -> s1, mem
+    | _::res -> interpret (Node(s)) edgeList res mem
+ 
+and evaluateEdge (logic: Logic) (mem: Map<string, int>) =
+    match logic with
+        |AssignE(x, a) -> let value = evalArithExpr a mem
+                          if mem.ContainsKey x then
+                                Some(mem.Add(x, value), true)
+                          else 
+                                None
+        | ArrayAssignE(x, a1, a2) ->  let index = evalArithExpr a1 mem
+                                      let value = evalArithExpr a2 mem
+                                      let name = x + (string index)
+                                      if mem.ContainsKey name then
+                                             Some(mem.Add(name, value), true)
+                                      else 
+                                             None
+        | SkipE -> Some(mem, true)
+        | BoolE(b) -> let result = evalBoolExpr b mem
+                      if result then
+                          Some(mem, true)
+                      else
+                          Some(mem, false)
 
-
-and evalArithExpr a (map: Map<string, int>) : int =
+and evalArithExpr a (mem: Map<string, int>) : int =
     match a with
         | N(n) -> n
-        | X(x) -> map.Item x
-        | ArrayAccess(x,a) -> map.Item (x+(string (evalArithExpr a map)))
-        | Plus(a1, a2) -> (evalArithExpr a1 map) + (evalArithExpr a2 map)
-        | Minus(a1, a2) -> (evalArithExpr a1 map) - (evalArithExpr a2 map)
-        | Multiply(a1, a2) -> (evalArithExpr a1 map) * (evalArithExpr a2 map)
-        | Divide(a1, a2) -> (evalArithExpr a1 map) / (evalArithExpr a2 map)
-        | Pow(a1, a2) -> pown (evalArithExpr a1 map) (evalArithExpr a2 map)
-        | UMinus(a) -> -(evalArithExpr a map)
+        | X(x) -> mem.Item x
+        | ArrayAccess(x,a) -> mem.Item (x+(string (evalArithExpr a mem)))
+        | Plus(a1, a2) -> (evalArithExpr a1 mem) + (evalArithExpr a2 mem)
+        | Minus(a1, a2) -> (evalArithExpr a1 mem) - (evalArithExpr a2 mem)
+        | Multiply(a1, a2) -> (evalArithExpr a1 mem) * (evalArithExpr a2 mem)
+        | Divide(a1, a2) -> (evalArithExpr a1 mem) / (evalArithExpr a2 mem)
+        | Pow(a1, a2) -> pown (evalArithExpr a1 mem) (evalArithExpr a2 mem)
+        | UMinus(a) -> -(evalArithExpr a mem)
 
-and evalBoolExpr b (map: Map<string, int>) : bool =
+and evalBoolExpr b (mem: Map<string, int>) : bool =
     match b with
         | Bool (b) -> b
-        | SAnd (b1 , b2) -> (evalBoolExpr b1 map) && (evalBoolExpr b2 map)
-        | SOr (b1 , b2) -> (evalBoolExpr b1 map) || (evalBoolExpr b2 map)
-        | And (b1 , b2) -> let b1res = evalBoolExpr b1 map
-                           let b2res = evalBoolExpr b2 map
+        | SAnd (b1 , b2) -> (evalBoolExpr b1 mem) && (evalBoolExpr b2 mem)
+        | SOr (b1 , b2) -> (evalBoolExpr b1 mem) || (evalBoolExpr b2 mem)
+        | And (b1 , b2) -> let b1res = evalBoolExpr b1 mem
+                           let b2res = evalBoolExpr b2 mem
                            b1res && b2res
-        | Or (b1 , b2) -> let b1res = evalBoolExpr b1 map
-                          let b2res = evalBoolExpr b2 map
+        | Or (b1 , b2) -> let b1res = evalBoolExpr b1 mem
+                          let b2res = evalBoolExpr b2 mem
                           b1res || b2res
-        | Not (b) ->  not (evalBoolExpr b map)
-        | Gt (a1, a2) -> (evalArithExpr a1 map) > (evalArithExpr a2 map)
-        | Lt (a1, a2) -> (evalArithExpr a1 map) < (evalArithExpr a2 map) 
-        | Le (a1, a2) -> (evalArithExpr a1 map) <= (evalArithExpr a2 map) 
-        | Ge (a1, a2) -> (evalArithExpr a1 map) >= (evalArithExpr a2 map)
-        | Eq (a1, a2) -> (evalArithExpr a1 map) = (evalArithExpr a2 map)
-        | NotEq (a1, a2) -> (evalArithExpr a1 map) <> (evalArithExpr a2 map)
+        | Not (b) ->  not (evalBoolExpr b mem)
+        | Gt (a1, a2) -> (evalArithExpr a1 mem) > (evalArithExpr a2 mem)
+        | Lt (a1, a2) -> (evalArithExpr a1 mem) < (evalArithExpr a2 mem) 
+        | Le (a1, a2) -> (evalArithExpr a1 mem) <= (evalArithExpr a2 mem) 
+        | Ge (a1, a2) -> (evalArithExpr a1 mem) >= (evalArithExpr a2 mem)
+        | Eq (a1, a2) -> (evalArithExpr a1 mem) = (evalArithExpr a2 mem)
+        | NotEq (a1, a2) -> (evalArithExpr a1 mem) <> (evalArithExpr a2 mem)

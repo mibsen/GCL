@@ -58,7 +58,12 @@ let map =
    Map.empty. (* Creating an empty Map *)
       Add("x", 0).
       Add("y", 0).
-      Add("z", 0);;
+      Add("i", 0).
+      Add("n", 0).
+      Add("A0", 1).
+      Add("A1", 2).
+      Add("A2", 3).
+      Add("A3", 15);;
 
 try
     let lexbuf = LexBuffer<char>.FromString input
@@ -67,12 +72,19 @@ try
        let res = GCLParser.start GCLLexer.tokenize lexbuf
  
        try
-        let final = createNode "qE" []                                
-        let (compiled,_) = PG.buildC res final 0 deterministic
-        let (finalnode, intmap) = Interpret.evaluateEdges compiled compiled.Edges map
+        let final = Node("qE")                                
+        let start = Node("qS")
+        let (edgeList,_) = buildC start res final 1 deterministic
+        let (finalnode, intmap) = Interpret.interpret start edgeList edgeList map
       
-        printfn "%A" intmap
+        if finalnode = "qE" then
+            printfn "status: terminated"
+        else 
+            printfn "status: stuck"
+        printfn "Node: %s" finalnode
+        Map.iter (fun s i -> printfn "%s: %i" s i) intmap 
+         
 
-       with e -> printfn "%s" e.Message
+       with e -> printfn "%s" (string e)
      with e -> printfn "Parse error at : Line %i, %i" (lexbuf.EndPos.pos_lnum + 1) (lexbuf.EndPos.pos_cnum - lexbuf.EndPos.pos_bol)
  with e -> printfn "ERROR: %s" e.Message

@@ -55,13 +55,14 @@ try
     try 
        let res = GCLParser.start GCLLexer.tokenize lexbuf
  
-       try
-        let final = createNode "qE" []                                
-        let (compiled,_) = PG.buildC res final 0 deterministic
+       let final = Node("qE")                                
+       let start = Node("qS")
+       let (edgeList,_) = buildC start res final 1 deterministic
+                                 
    
-        printfn "COMPILED - Printing Graph"
-        printfn "-------"
-        PG.printGraph compiled
-       with e -> printfn "%s" e.StackTrace
+       printfn "COMPILED - Printing Graph"
+       printfn "-------"
+       printfn "%s" (printGraph edgeList)
+       
      with e -> printfn "Parse error at : Line %i, %i" (lexbuf.EndPos.pos_lnum + 1) (lexbuf.EndPos.pos_cnum - lexbuf.EndPos.pos_bol)
  with e -> printfn "ERROR: %s" e.Message
