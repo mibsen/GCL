@@ -4,5 +4,6 @@ do i<n -> j:=i;
                                      A[j]:=A[j-1];
                                      A[j-1]:=t;
                                      j:=j-1
-          od
+          od;
+          i:=i+1
  od

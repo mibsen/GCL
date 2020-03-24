@@ -1,10 +1,13 @@
 ﻿module PG
 
+open GCLAST
+
 //Data structure for the program graph
 type Node =
     {mutable Name : string;
     mutable Edges : Edge list;
     mutable Printed : bool;
+    mutable Final : bool;
     }
 and Edge = // needs one for each unique edge logic
     |  AssignE of (x*a*Node)
@@ -39,7 +42,7 @@ and getAString a =
     | Pow (a1, a2) -> sprintf "%s^%s" (getAString a1) (getAString a2)
     | UMinus (a) -> sprintf "-%s" (getAString a)
 let createNode name edges = 
-                            {Name = name; Edges = edges; Printed = false}
+                            {Name = name; Edges = edges; Printed = false; Final = false;}
 let getNodeName number = if number = 0 then "qS" else sprintf "q%i" number
 let createNodeN number edges =  createNode (getNodeName number) edges
 
