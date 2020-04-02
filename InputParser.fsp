@@ -1,0 +1,30 @@
+%{
+open Input
+%}
+
+%token <string> VAR
+%token <int> NUM
+%token ASSIGN LBRAK RBRAK COMMA EOF 
+%left ASSIGN LBRAK RBRAK COMMA EOF 
+
+%start start
+
+%type <A> start
+%type <A> assignment
+
+%%
+start: assignment EOF              { $1 }
+
+assignment:
+      |x ASSIGN a                  { VarInit($1, $3) }
+      |x ASSIGN LBRAK l RBRAK      { ArrayInit($1, $4) }
+      |assignment COMMA assignment { Sequence($1, $3) }
+
+l: 
+      |a COMMA l                   { ArraySequence($1, $3)}
+      |a                           { Num($1) }
+
+x:  VAR                            { $1 }
+a:  NUM                            { $1 }
+
+%%

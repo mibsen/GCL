@@ -10,7 +10,7 @@ let rec interpret (Node(s)) (edgeList: Edge list) (remain: Edge list) (mem: Map<
                                                              match evalresult with 
                                                                 | Some(memN,true) -> if s2 = "qE" then
                                                                                         s2, memN 
-                                                                                     else
+                                                                                     else   
                                                                                         interpret (Node(s2)) edgeList edgeList memN
                                                                 | Some(memN,false) -> interpret (Node(s1)) edgeList res memN
                                                                 | None -> s1, mem
