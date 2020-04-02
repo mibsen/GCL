@@ -29,7 +29,7 @@ Example:
 This will print a deterministic version of the program graph
 
 ## How to run the interpreter
-`fsi.exe Compiler.fsx <Path to source file> <Path to file with initial variables> <true or false to construct deterministic graph (false is default)>`
+`fsi.exe Interpreter.fsx <Path to source file> <Path to file with initial variables> <true or false to construct deterministic graph (false is default)>`
 
 This will print whether or not the program terminated, the node the program ended in and the memory of the program at the time of stoppage. While there is an option for deterministic and non-deterministic PG the interpreter can only deal with deterministic PG's. An example output would be:
 
