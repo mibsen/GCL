@@ -8,5 +8,5 @@ let rec inputInterpret ast (mem: Map<string, int>): Map<string, int>=
 
 and inputInterpretArray x al mem i =
     match al with 
-        |ArraySequence(a, al2) -> (inputInterpretArray x al2 mem (i+1)).Add(x+(string i), a)
-        |Num(a) -> mem.Add(x+(string i), a)
+        |ArraySequence(a, al2) -> (inputInterpretArray x al2 mem (i+1)).Add(sprintf "%s[%i]"x i, a)
+        |Num(a) -> mem.Add(sprintf "%s[%i]"x i, a)

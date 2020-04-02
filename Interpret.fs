@@ -33,7 +33,7 @@ and evaluateEdge (logic: Logic) (mem: Map<string, int>) =
                                 None
         | ArrayAssignE(x, a1, a2) ->  let index = evalArithExpr a1 mem
                                       let value = evalArithExpr a2 mem
-                                      let name = x + (string index)
+                                      let name = sprintf "%s[%i]" x index
                                       if mem.ContainsKey name then
                                              Some(mem.Add(name, value), true)
                                       else 
