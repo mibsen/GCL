@@ -16,33 +16,6 @@ open InputLexer
 #load "InputInterpret.fs"
 open InputInterpret
 
-let getInput path=
-    try 
-        File.ReadAllText path
-    with e -> 
-        failwith ("could not read file: " + path)
-        null
-
-let getInputMap path: Map<string, int> = 
-
-    printfn "%s" path
-    printfn "Reading file content"
-
-
-    let input = getInput path
-
-    try
-        let lexbuf = LexBuffer<char>.FromString input
-        
-        try 
-           let res = InputParser.start InputLexer.tokenize lexbuf
-           inputInterpret res Map.empty
-           
-         with e -> printfn "Parse error at : Line %i, %i" (lexbuf.EndPos.pos_lnum + 1) (lexbuf.EndPos.pos_cnum - lexbuf.EndPos.pos_bol)
-                   Map.empty
-     with e -> printfn "ERROR: %s" e.Message
-               Map.empty
-
 #load "GCLAST.fs"
 open GCLAST
 
@@ -58,6 +31,29 @@ open PG
 #load "Interpret.fs"
 open Interpret
 
+let getInput path=
+    try 
+        File.ReadAllText path
+    with e -> 
+        failwith ("could not read file: " + path)
+        null
+
+let getInputMap path: Map<string, int> = 
+
+    let input = getInput path
+
+    try
+        let lexbuf = LexBuffer<char>.FromString input
+        
+        try 
+           let res = InputParser.start InputLexer.tokenize lexbuf
+           inputInterpret res Map.empty
+           
+         with e -> printfn "Parse error at : Line %i, %i" (lexbuf.EndPos.pos_lnum + 1) (lexbuf.EndPos.pos_cnum - lexbuf.EndPos.pos_bol)
+                   Map.empty
+     with e -> printfn "ERROR: %s" e.Message
+               Map.empty
+
 let getPath = 
     try 
         let args: string array = System.Environment.GetCommandLineArgs()
@@ -70,14 +66,14 @@ let getPath =
 let getDeterministic =
     try 
         let args: string array = System.Environment.GetCommandLineArgs()
-        Boolean.Parse(args.[3])
+        Boolean.Parse(args.[4])
     with e -> 
         false
 
 let getInitVars =
     try 
         let args: string array = System.Environment.GetCommandLineArgs()
-        args.[4]
+        args.[3]
     with e -> 
         printfn "Insert Path to file"
         Console.ReadLine()   
@@ -85,7 +81,6 @@ let getInitVars =
 let path = getPath
 let deterministic = getDeterministic
 let inputMap = getInputMap getInitVars
-Map.iter (fun s i -> printfn "%s: %i" s i) inputMap
 
 printfn "Deterministic: %b" deterministic
 printfn "%s" path
@@ -103,7 +98,6 @@ try
         let final = Node("qE")                                
         let start = Node("qS")
         let (edgeList,_) = buildC start res final 1 deterministic
-        printfn "%s" (printGraph edgeList) 
         let (finalnode, intmap) = Interpret.interpret start edgeList edgeList inputMap
       
         if finalnode = "qE" then
