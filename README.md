@@ -35,10 +35,15 @@ This will print whether or not the program terminated, the node the program ende
 
 
 `status: terminated`
+
 `Node: qFinal`
+
 `x: 13`
+
 `y: 7`
+
 `z: 0`
+
 
 ## Tests
 Multiple test cases are placed in the `./test/cases` folder.
