@@ -39,17 +39,13 @@ and evaluateEdge (logic: Logic) (mem: Map<string, int>) =
                                       else 
                                              None
         | SkipE -> Some(mem, true)
-        | BoolE(b) -> let result = evalBoolExpr b mem
-                      if result then
-                          Some(mem, true)
-                      else
-                          Some(mem, false)
+        | BoolE(b) -> Some(mem, evalBoolExpr b mem)
 
 and evalArithExpr a (mem: Map<string, int>) : int =
     match a with
         | N(n) -> n
         | X(x) -> mem.Item x
-        | ArrayAccess(x,a) -> mem.Item (x+(string (evalArithExpr a mem)))
+        | ArrayAccess(x,a) -> mem.Item (sprintf "%s[%i]" x (evalArithExpr a mem))
         | Plus(a1, a2) -> (evalArithExpr a1 mem) + (evalArithExpr a2 mem)
         | Minus(a1, a2) -> (evalArithExpr a1 mem) - (evalArithExpr a2 mem)
         | Multiply(a1, a2) -> (evalArithExpr a1 mem) * (evalArithExpr a2 mem)
