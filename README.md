@@ -28,6 +28,24 @@ Example:
 
 This will print a deterministic version of the program graph
 
+## How to run the interpreter
+`fsi.exe Compiler.fsx <Path to source file> <Path to file with initial variables> <true or false to construct deterministic graph (false is default)>`
+
+This will print whether or not the program terminated, the node the program ended in and the memory of the program at the time of stoppage. While there is an option for deterministic and non-deterministic PG the interpreter can only deal with deterministic PG's. An example output would be:
+
+`status: terminated`
+
+`Node: qFinal`
+
+`x: 13`
+
+`y: 7`
+
+`z: 0`
+
+The file containing the initial variables should follow the same syntax as the initialization of variables in http://www.formalmethods.dk/fm4fun. For example:
+
+`x = 0, y = 0, z = 0, A = [1,2,3,4]`
 
 ## Tests
 Multiple test cases are placed in the `./test/cases` folder.
