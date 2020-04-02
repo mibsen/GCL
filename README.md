@@ -4,11 +4,18 @@ We have implemented a parser for GCL Which accepts or rejects programs and build
 The solution is built using FsLexYacc.
 
 ## How to build
-1. Compile the lexer using fslex.exe
+1. Compile the GCL lexer using fslex.exe
 `./FsLexYacc.10.0.0/build/fslex/net46/fslex.exe ./GCLLexer.fsl --unicode`
 
-2. Compile the parser using fsyacc.exe
+2. Compile the GCL parser using fsyacc.exe
 `./FsLexYacc.10.0.0/build/fsyacc/net46/fsyacc.exe ./GCLParser.fsp --module GCLParser`
+
+3. Compile the input lexer using fslex.exe
+`./packages/FsLexYacc.10.0.0/build/fslex/net46/fslex.exe ./InputLexer.fsl --unicode`
+
+4. Compile the input parser using fsyacc.exe
+`./packages/FsLexYacc.10.0.0/build/fsyacc/net46/fsyacc.exe ./InputParser.fsp --module InputParser`
+
 
 ## How to run the parser
 `fsi.exe GCL.fsx <Path to source file>` 
