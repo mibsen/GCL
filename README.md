@@ -33,13 +33,12 @@ This will print a deterministic version of the program graph
 
 This will print whether or not the program terminated, the node the program ended in and the memory of the program at the time of stoppage. An example output would be:
 
-`
-status: terminated
-Node: qFinal
-x: 13
-y: 7
-z: 0
-`
+
+`status: terminated`
+`Node: qFinal`
+`x: 13`
+`y: 7`
+`z: 0`
 
 ## Tests
 Multiple test cases are placed in the `./test/cases` folder.
