@@ -4,31 +4,31 @@ open FSharp.Text.Lexing
 open System
 open System.IO
 
-#load "Input.fs"
+#load "Interpreter/Input.fs"
 open Input
 
-#load "InputParser.fs"
+#load "Interpreter/InputParser.fs"
 open InputParser
 
-#load "InputLexer.fs"
+#load "Interpreter/InputLexer.fs"
 open InputLexer
 
-#load "InputInterpret.fs"
+#load "Interpreter/InputInterpret.fs"
 open InputInterpret
 
-#load "GCLAST.fs"
+#load "LexerAndParser/GCLAST.fs"
 open GCLAST
 
-#load "GCLParser.fs"
+#load "LexerAndParser/GCLParser.fs"
 open GCLParser
 
-#load "GCLLexer.fs"
+#load "LexerAndParser/GCLLexer.fs"
 open GCLLexer
 
-#load "PG.fs"
+#load "Compiler/PG.fs"
 open PG
 
-#load "Interpret.fs"
+#load "Interpreter/Interpret.fs"
 open Interpret
 
 let getInput path=

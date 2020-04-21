@@ -4,16 +4,16 @@ open FSharp.Text.Lexing
 open System
 open System.IO
 
-#load "GCLAST.fs"
+#load "LexerAndParser/GCLAST.fs"
 open GCLAST
 
-#load "GCLParser.fs"
+#load "LexerAndParser/GCLParser.fs"
 open GCLParser
 
-#load "GCLLexer.fs"
+#load "LexerAndParser/GCLLexer.fs"
 open GCLLexer
 
-#load "PG.fs"
+#load "Compiler/PG.fs"
 open PG
 
 

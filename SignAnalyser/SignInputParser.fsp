@@ -1,0 +1,30 @@
+%{
+open SignInput
+%}
+
+%token <string> VAR
+%token <string> SIGN
+%token ASSIGN LCBRAK RCBRAK COMMA EOF 
+%left ASSIGN LCBRAK RCBRAK COMMA EOF 
+
+%start start
+
+%type <A> start
+%type <A> assignment
+
+%%
+start: assignment EOF              { $1 }
+
+assignment:
+      |x ASSIGN a                  { SignVarInit($1, $3) }
+      |x ASSIGN LCBRAK l RCBRAK    { SignArrayInit($1, $4) }
+      |assignment COMMA assignment { Sequence($1, $3) }
+
+l: 
+      |a COMMA l                   { SignArraySequence($1, $3)}
+      |a                           { Sign($1) }
+
+x:  VAR                            { $1 }
+a:  SIGN                           { $1 }
+
+%%
