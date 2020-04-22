@@ -11,7 +11,7 @@ let var           = char(char|digit)*
 
 rule tokenize = parse
 | whitespace    { tokenize lexbuf }
-| newline       { lexbuf.EndPos <- lexbuf.EndPos.NextLine; tokenize lexbuf; }
+| newline       { NEWLINE }
 | sign          { let sign = LexBuffer<_>.LexemeString lexbuf in SIGN(sign) }
 | var           { let str = LexBuffer<_>.LexemeString lexbuf in VAR(str) }
 | "="			{ ASSIGN }

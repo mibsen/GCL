@@ -1,8 +1,8 @@
-# 1 "SignInputLexer.fsl"
+# 1 "./SignInputLexer.fsl"
  
 module SignInputLexer
 
-# 5 "SignInputLexer.fs"
+# 5 ".\SignInputLexer.fs"
 let trans : uint16[] array = 
     [| 
     (* State 0 *)
@@ -41,55 +41,55 @@ let rec _fslex_dummy () = _fslex_dummy()
 and tokenize  lexbuf =
   match _fslex_tables.Interpret(0,lexbuf) with
   | 0 -> ( 
-# 13 "SignInputLexer.fsl"
+# 13 "./SignInputLexer.fsl"
                                  tokenize lexbuf 
-# 46 "SignInputLexer.fs"
+# 46 ".\SignInputLexer.fs"
           )
   | 1 -> ( 
-# 14 "SignInputLexer.fsl"
-                                 lexbuf.EndPos <- lexbuf.EndPos.NextLine; tokenize lexbuf; 
-# 51 "SignInputLexer.fs"
+# 14 "./SignInputLexer.fsl"
+                                 NEWLINE 
+# 51 ".\SignInputLexer.fs"
           )
   | 2 -> ( 
-# 15 "SignInputLexer.fsl"
+# 15 "./SignInputLexer.fsl"
                                  let sign = LexBuffer<_>.LexemeString lexbuf in SIGN(sign) 
-# 56 "SignInputLexer.fs"
+# 56 ".\SignInputLexer.fs"
           )
   | 3 -> ( 
-# 16 "SignInputLexer.fsl"
+# 16 "./SignInputLexer.fsl"
                                  let str = LexBuffer<_>.LexemeString lexbuf in VAR(str) 
-# 61 "SignInputLexer.fs"
+# 61 ".\SignInputLexer.fs"
           )
   | 4 -> ( 
-# 17 "SignInputLexer.fsl"
+# 17 "./SignInputLexer.fsl"
                          ASSIGN 
-# 66 "SignInputLexer.fs"
+# 66 ".\SignInputLexer.fs"
           )
   | 5 -> ( 
-# 18 "SignInputLexer.fsl"
+# 18 "./SignInputLexer.fsl"
                                  LCBRAK 
-# 71 "SignInputLexer.fs"
+# 71 ".\SignInputLexer.fs"
           )
   | 6 -> ( 
-# 19 "SignInputLexer.fsl"
+# 19 "./SignInputLexer.fsl"
                                  RCBRAK 
-# 76 "SignInputLexer.fs"
+# 76 ".\SignInputLexer.fs"
           )
   | 7 -> ( 
-# 20 "SignInputLexer.fsl"
+# 20 "./SignInputLexer.fsl"
                                  COMMA 
-# 81 "SignInputLexer.fs"
+# 81 ".\SignInputLexer.fs"
           )
   | 8 -> ( 
-# 21 "SignInputLexer.fsl"
+# 21 "./SignInputLexer.fsl"
                                  EOF 
-# 86 "SignInputLexer.fs"
+# 86 ".\SignInputLexer.fs"
           )
   | 9 -> ( 
-# 22 "SignInputLexer.fsl"
+# 22 "./SignInputLexer.fsl"
                      raise (Exception (sprintf "SyntaxError: Unexpected char: '%s' Line: %d Column: %d" (LexBuffer<_>.LexemeString lexbuf) (lexbuf.StartPos.Line+1) lexbuf.StartPos.Column)) 
-# 91 "SignInputLexer.fs"
+# 91 ".\SignInputLexer.fs"
           )
   | _ -> failwith "tokenize"
 
-# 3000000 "SignInputLexer.fs"
+# 3000000 ".\SignInputLexer.fs"

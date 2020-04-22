@@ -6,6 +6,7 @@ type token =
   | RCBRAK
   | COMMA
   | EOF
+  | NEWLINE
   | SIGN of (string)
   | VAR of (string)
 type tokenId = 
@@ -14,6 +15,7 @@ type tokenId =
     | TOKEN_RCBRAK
     | TOKEN_COMMA
     | TOKEN_EOF
+    | TOKEN_NEWLINE
     | TOKEN_SIGN
     | TOKEN_VAR
     | TOKEN_end_of_input
@@ -21,6 +23,7 @@ type tokenId =
 type nonTerminalId = 
     | NONTERM__startstart
     | NONTERM_start
+    | NONTERM_list
     | NONTERM_assignment
     | NONTERM_l
     | NONTERM_x
@@ -36,4 +39,4 @@ val prodIdxToNonTerminal: int -> nonTerminalId
 
 /// This function gets the name of a token as a string
 val token_to_string: token -> string
-val start : (FSharp.Text.Lexing.LexBuffer<'cty> -> token) -> FSharp.Text.Lexing.LexBuffer<'cty> -> (A) 
+val start : (FSharp.Text.Lexing.LexBuffer<'cty> -> token) -> FSharp.Text.Lexing.LexBuffer<'cty> -> (AS) 
