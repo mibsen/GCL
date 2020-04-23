@@ -54,6 +54,50 @@ The file containing the initial variables should follow the same syntax as the i
 
 `x = 0, y = 0, z = 0, A = [1,2,3,4]`
 
+## How to run the sign analyser
+`fsi.exe SignAnalyser.fsx <Path to source file> <Path to file with initial abstract memory> <true or false to construct deterministic graph (false is default)>`
+
+This will print the analysis assignment for the program with the given initial abstract memory. An example output would be:
+
+       x    y
+
+`qS:`
+
+       +    +
+   
+`q1:`
+
+       +    +
+    
+`q2:`
+
+       -    +
+    
+       0    +
+    
+       +    +
+    
+`q3:`
+
+       +    +
+    
+`q4:`
+
+       +    +
+    
+`qE:`
+
+       -    +
+    
+       0    +
+
+
+The file containing the initial abstract memory should follow the same general syntax as the initialization of the abstract memory in http://www.formalmethods.dk/fm4fun/#sign-analysis, with the exception that a set of abstract memories is specified by placing a semicolon between the abstract memories. For example:
+
+`x = +, y = +, A = {0};`
+
+`x = +, y = +, A = {-}`
+
 ## Tests
 Multiple test cases are placed in the `./test/cases` folder.
 
