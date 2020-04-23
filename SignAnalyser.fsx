@@ -47,7 +47,7 @@ let getPath =
         printfn "Insert Path to file"
         Console.ReadLine()   
 
-let getInitSigns path: Map<string, int> * Map<string, Set<int>> = 
+let getInitSignsList path: NodeAbsMem = 
 
     let input = getInput path
 
@@ -56,12 +56,18 @@ let getInitSigns path: Map<string, int> * Map<string, Set<int>> =
         
         try 
            let res = SignInputParser.start SignInputLexer.tokenize lexbuf
-           inputInterpret res (Map.empty, Map.empty)
+
+           let rec toSet r = 
+               match r with
+                   | Line(l) -> Set.empty.Add(inputInterpret l (Map.empty, Map.empty))
+                   | Lines(l,res) -> (toSet res).Add(inputInterpret l (Map.empty, Map.empty))
+
+           toSet res
            
          with e -> printfn "Parse error at : Line %i, %i" (lexbuf.EndPos.pos_lnum + 1) (lexbuf.EndPos.pos_cnum - lexbuf.EndPos.pos_bol)
-                   (Map.empty, Map.empty)
-     with e -> printfn "ERROR: %s" e.Message
-               (Map.empty, Map.empty)
+                   Set.empty.Add(Map.empty, Map.empty)
+     with e -> printfn "ERROR: %s" e.StackTrace
+               Set.empty.Add(Map.empty, Map.empty)
 
 
 let getDeterministic =
@@ -88,25 +94,33 @@ printfn "Reading file content"
 
 let input = getInput path
 
-let initAbsMem = Map.empty.Add("qS", Set.empty.Add(getInitSigns getInitSignVars))
+let initSignsSet = getInitSignsList getInitSignVars
 
-try
-    let lexbuf = LexBuffer<char>.FromString input
+
+// Function to return the abstract memory for the initsigns
+let getAbstractMemory initsigns= 
+    let initAbsMem = Map.empty.Add("qS", initsigns)
+
+    try
+        let lexbuf = LexBuffer<char>.FromString input
     
-    try 
-       let res = GCLParser.start GCLLexer.tokenize lexbuf
+        try 
+           let res = GCLParser.start GCLLexer.tokenize lexbuf
  
-       let final = Node("qE")                                
-       let start = Node("qS")
-       let (edgeList,_) = buildC start res final 1 deterministic
+           let final = Node("qE")                                
+           let start = Node("qS")
+           let (edgeList,_) = buildC start res final 1 deterministic
                                  
-       let abstractMemory = Analyse [start] edgeList initAbsMem
+           let abstractMemory = Analyse [start] edgeList initAbsMem
 
-       //Map.iter (fun q nam -> printfn "%s: %s" q (nam.ToString())) abstractMemory
+           abstractMemory
 
-       //Map.iter (fun q nam -> printfn "%s: \n%s" q (Set.foldBack (fun (varSigns, arrSigns) a -> (sprintf "%s %s \n" (Map.foldBack (fun var x a -> (sprintf "(%s, %i)" var x)+a) varSigns "") (Map.foldBack (fun var x a -> (sprintf "(%s, %s)" var (x.ToString()))+a) arrSigns ""))+a) nam "")) abstractMemory
+         with e -> printfn "%s \n %s" e.Message e.StackTrace
+                   Map.empty
+     with e -> printfn "ERROR: %s" e.Message
+               Map.empty
 
-       printfn "%s" (PrintAbstractMemory abstractMemory)
+// We now have the abstract memories
+let am = getAbstractMemory initSignsSet 
 
-     with e -> printfn "%s \n %s" e.Message e.StackTrace
- with e -> printfn "ERROR: %s" e.Message
+printfn "%s" (PrintAbstractMemory am)

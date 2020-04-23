@@ -1,43 +1,8 @@
 module SignAnalysis
 
+//Data structure for the abstract memories of a node. Variables are a string * int map and arrays are a string * Set<int> map.
+//Sets are used to prevent duplicates
 type NodeAbsMem = Set<Map<string, int> * Map<string, Set<int>>>
-
-type a = 
-    | N of int
-    | X of x
-    | ArrayAccess of (x * a)
-    | Plus of (a * a)
-    | Minus of (a * a)
-    | Multiply of (a * a)
-    | Divide of (a * a)
-    | Pow of (a * a)
-    | UMinus of (a)
-
-and x = string
-
-and b = 
-    | Bool of bool
-    | SAnd of (b * b)
-    | SOr of (b * b)
-    | And of (b * b)
-    | Or of (b * b)
-    | Not of (b)
-    | Gt of (a * a)
-    | Lt of (a * a)
-    | Le of (a * a)
-    | Ge of (a * a)
-    | Eq of (a * a)
-    | NotEq of (a * a)
-
-type Node =
-    | Node of (string)
-and Edge =
-    | Edge of (Node*Logic*Node) 
-and Logic =
-    | AssignE of (x*a)
-    | ArrayAssignE of (x * a * a)
-    | SkipE
-    | BoolE of (b)
 
 //Results of operations on signs
 let plusMap = Map.empty.Add(-1, Map.empty.Add(-1, [-1])    .Add(0, [-1]).Add(1, [-1;0;1]))

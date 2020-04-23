@@ -8,6 +8,9 @@ and AL =
     | SignArraySequence of (string * AL)
     | Sign of string
 
+type AS =
+    | Line of A
+    | Lines of (A * AS)
 
 let rec printA a = 
     match a with 

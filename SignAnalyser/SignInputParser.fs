@@ -15,6 +15,7 @@ type token =
   | RCBRAK
   | COMMA
   | EOF
+  | SEMI
   | SIGN of (string)
   | VAR of (string)
 // This type is used to give symbolic names to token indexes, useful for error messages
@@ -24,6 +25,7 @@ type tokenId =
     | TOKEN_RCBRAK
     | TOKEN_COMMA
     | TOKEN_EOF
+    | TOKEN_SEMI
     | TOKEN_SIGN
     | TOKEN_VAR
     | TOKEN_end_of_input
@@ -32,6 +34,7 @@ type tokenId =
 type nonTerminalId = 
     | NONTERM__startstart
     | NONTERM_start
+    | NONTERM_list
     | NONTERM_assignment
     | NONTERM_l
     | NONTERM_x
@@ -45,8 +48,9 @@ let tagOfToken (t:token) =
   | RCBRAK  -> 2 
   | COMMA  -> 3 
   | EOF  -> 4 
-  | SIGN _ -> 5 
-  | VAR _ -> 6 
+  | SEMI  -> 5 
+  | SIGN _ -> 6 
+  | VAR _ -> 7 
 
 // This function maps integer indexes to symbolic token ids
 let tokenTagToTokenId (tokenIdx:int) = 
@@ -56,10 +60,11 @@ let tokenTagToTokenId (tokenIdx:int) =
   | 2 -> TOKEN_RCBRAK 
   | 3 -> TOKEN_COMMA 
   | 4 -> TOKEN_EOF 
-  | 5 -> TOKEN_SIGN 
-  | 6 -> TOKEN_VAR 
-  | 9 -> TOKEN_end_of_input
-  | 7 -> TOKEN_error
+  | 5 -> TOKEN_SEMI 
+  | 6 -> TOKEN_SIGN 
+  | 7 -> TOKEN_VAR 
+  | 10 -> TOKEN_end_of_input
+  | 8 -> TOKEN_error
   | _ -> failwith "tokenTagToTokenId: bad token"
 
 /// This function maps production indexes returned in syntax errors to strings representing the non terminal that would be produced by that production
@@ -67,17 +72,19 @@ let prodIdxToNonTerminal (prodIdx:int) =
   match prodIdx with
     | 0 -> NONTERM__startstart 
     | 1 -> NONTERM_start 
-    | 2 -> NONTERM_assignment 
-    | 3 -> NONTERM_assignment 
+    | 2 -> NONTERM_list 
+    | 3 -> NONTERM_list 
     | 4 -> NONTERM_assignment 
-    | 5 -> NONTERM_l 
-    | 6 -> NONTERM_l 
-    | 7 -> NONTERM_x 
-    | 8 -> NONTERM_a 
+    | 5 -> NONTERM_assignment 
+    | 6 -> NONTERM_assignment 
+    | 7 -> NONTERM_l 
+    | 8 -> NONTERM_l 
+    | 9 -> NONTERM_x 
+    | 10 -> NONTERM_a 
     | _ -> failwith "prodIdxToNonTerminal: bad production index"
 
-let _fsyacc_endOfInputTag = 9 
-let _fsyacc_tagOfErrorTerminal = 7
+let _fsyacc_endOfInputTag = 10 
+let _fsyacc_tagOfErrorTerminal = 8
 
 // This function gets the name of a token as a string
 let token_to_string (t:token) = 
@@ -87,6 +94,7 @@ let token_to_string (t:token) =
   | RCBRAK  -> "RCBRAK" 
   | COMMA  -> "COMMA" 
   | EOF  -> "EOF" 
+  | SEMI  -> "SEMI" 
   | SIGN _ -> "SIGN" 
   | VAR _ -> "VAR" 
 
@@ -98,122 +106,146 @@ let _fsyacc_dataOfToken (t:token) =
   | RCBRAK  -> (null : System.Object) 
   | COMMA  -> (null : System.Object) 
   | EOF  -> (null : System.Object) 
+  | SEMI  -> (null : System.Object) 
   | SIGN _fsyacc_x -> Microsoft.FSharp.Core.Operators.box _fsyacc_x 
   | VAR _fsyacc_x -> Microsoft.FSharp.Core.Operators.box _fsyacc_x 
-let _fsyacc_gotos = [| 0us; 65535us; 1us; 65535us; 0us; 1us; 2us; 65535us; 0us; 2us; 11us; 10us; 2us; 65535us; 7us; 8us; 13us; 14us; 2us; 65535us; 0us; 4us; 11us; 4us; 3us; 65535us; 5us; 6us; 7us; 12us; 13us; 12us; |]
-let _fsyacc_sparseGotoTableRowOffsets = [|0us; 1us; 3us; 6us; 9us; 12us; |]
-let _fsyacc_stateToProdIdxsTableElements = [| 1us; 0us; 1us; 0us; 2us; 1us; 4us; 1us; 1us; 2us; 2us; 3us; 2us; 2us; 3us; 1us; 2us; 1us; 3us; 1us; 3us; 1us; 3us; 2us; 4us; 4us; 1us; 4us; 2us; 5us; 6us; 1us; 5us; 1us; 5us; 1us; 7us; 1us; 8us; |]
-let _fsyacc_stateToProdIdxsTableRowOffsets = [|0us; 2us; 4us; 7us; 9us; 12us; 15us; 17us; 19us; 21us; 23us; 26us; 28us; 31us; 33us; 35us; 37us; |]
-let _fsyacc_action_rows = 17
-let _fsyacc_actionTableElements = [|1us; 32768us; 6us; 15us; 0us; 49152us; 2us; 32768us; 3us; 11us; 4us; 3us; 0us; 16385us; 1us; 32768us; 0us; 5us; 2us; 32768us; 1us; 7us; 5us; 16us; 0us; 16386us; 1us; 32768us; 5us; 16us; 1us; 32768us; 2us; 9us; 0us; 16387us; 0us; 16388us; 1us; 32768us; 6us; 15us; 1us; 16390us; 3us; 13us; 1us; 32768us; 5us; 16us; 0us; 16389us; 0us; 16391us; 0us; 16392us; |]
-let _fsyacc_actionTableRowOffsets = [|0us; 2us; 3us; 6us; 7us; 9us; 12us; 13us; 15us; 17us; 18us; 19us; 21us; 23us; 25us; 26us; 27us; |]
-let _fsyacc_reductionSymbolCounts = [|1us; 2us; 3us; 5us; 3us; 3us; 1us; 1us; 1us; |]
-let _fsyacc_productionToNonTerminalTable = [|0us; 1us; 2us; 2us; 2us; 3us; 3us; 4us; 5us; |]
-let _fsyacc_immediateActions = [|65535us; 49152us; 65535us; 16385us; 65535us; 65535us; 16386us; 65535us; 65535us; 16387us; 65535us; 65535us; 65535us; 65535us; 16389us; 16391us; 16392us; |]
+let _fsyacc_gotos = [| 0us; 65535us; 1us; 65535us; 0us; 1us; 2us; 65535us; 0us; 2us; 5us; 6us; 3us; 65535us; 0us; 4us; 5us; 4us; 14us; 13us; 2us; 65535us; 10us; 11us; 16us; 17us; 3us; 65535us; 0us; 7us; 5us; 7us; 14us; 7us; 3us; 65535us; 8us; 9us; 10us; 15us; 16us; 15us; |]
+let _fsyacc_sparseGotoTableRowOffsets = [|0us; 1us; 3us; 6us; 10us; 13us; 17us; |]
+let _fsyacc_stateToProdIdxsTableElements = [| 1us; 0us; 1us; 0us; 1us; 1us; 1us; 1us; 3us; 2us; 3us; 6us; 1us; 2us; 1us; 2us; 2us; 4us; 5us; 2us; 4us; 5us; 1us; 4us; 1us; 5us; 1us; 5us; 1us; 5us; 2us; 6us; 6us; 1us; 6us; 2us; 7us; 8us; 1us; 7us; 1us; 7us; 1us; 9us; 1us; 10us; |]
+let _fsyacc_stateToProdIdxsTableRowOffsets = [|0us; 2us; 4us; 6us; 8us; 12us; 14us; 16us; 19us; 22us; 24us; 26us; 28us; 30us; 33us; 35us; 38us; 40us; 42us; 44us; |]
+let _fsyacc_action_rows = 20
+let _fsyacc_actionTableElements = [|1us; 32768us; 7us; 18us; 0us; 49152us; 1us; 32768us; 4us; 3us; 0us; 16385us; 2us; 16387us; 3us; 14us; 5us; 5us; 1us; 32768us; 7us; 18us; 0us; 16386us; 1us; 32768us; 0us; 8us; 2us; 32768us; 1us; 10us; 6us; 19us; 0us; 16388us; 1us; 32768us; 6us; 19us; 1us; 32768us; 2us; 12us; 0us; 16389us; 0us; 16390us; 1us; 32768us; 7us; 18us; 1us; 16392us; 3us; 16us; 1us; 32768us; 6us; 19us; 0us; 16391us; 0us; 16393us; 0us; 16394us; |]
+let _fsyacc_actionTableRowOffsets = [|0us; 2us; 3us; 5us; 6us; 9us; 11us; 12us; 14us; 17us; 18us; 20us; 22us; 23us; 24us; 26us; 28us; 30us; 31us; 32us; |]
+let _fsyacc_reductionSymbolCounts = [|1us; 2us; 3us; 1us; 3us; 5us; 3us; 3us; 1us; 1us; 1us; |]
+let _fsyacc_productionToNonTerminalTable = [|0us; 1us; 2us; 2us; 3us; 3us; 3us; 4us; 4us; 5us; 6us; |]
+let _fsyacc_immediateActions = [|65535us; 49152us; 65535us; 16385us; 65535us; 65535us; 16386us; 65535us; 65535us; 16388us; 65535us; 65535us; 16389us; 65535us; 65535us; 65535us; 65535us; 16391us; 16393us; 16394us; |]
 let _fsyacc_reductions ()  =    [| 
-# 114 "SignInputParser.fs"
+# 123 "SignInputParser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
-            let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : A)) in
+            let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : AS)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
                       raise (FSharp.Text.Parsing.Accept(Microsoft.FSharp.Core.Operators.box _1))
                    )
                  : '_startstart));
-# 123 "SignInputParser.fs"
+# 132 "SignInputParser.fs"
+        (fun (parseState : FSharp.Text.Parsing.IParseState) ->
+            let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : AS)) in
+            Microsoft.FSharp.Core.Operators.box
+                (
+                   (
+# 17 "SignInputParser.fsp"
+                                                    _1 
+                   )
+# 17 "SignInputParser.fsp"
+                 : AS));
+# 143 "SignInputParser.fs"
+        (fun (parseState : FSharp.Text.Parsing.IParseState) ->
+            let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : A)) in
+            let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : AS)) in
+            Microsoft.FSharp.Core.Operators.box
+                (
+                   (
+# 20 "SignInputParser.fsp"
+                                                 Lines(_1, _3) 
+                   )
+# 20 "SignInputParser.fsp"
+                 : AS));
+# 155 "SignInputParser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : A)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 16 "SignInputParser.fsp"
-                                                          _1 
+# 21 "SignInputParser.fsp"
+                                       Line(_1) 
                    )
-# 16 "SignInputParser.fsp"
-                 : A));
-# 134 "SignInputParser.fs"
+# 21 "SignInputParser.fsp"
+                 : AS));
+# 166 "SignInputParser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : 'x)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : 'a)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 19 "SignInputParser.fsp"
+# 24 "SignInputParser.fsp"
                                                           SignVarInit(_1, _3) 
                    )
-# 19 "SignInputParser.fsp"
+# 24 "SignInputParser.fsp"
                  : A));
-# 146 "SignInputParser.fs"
+# 178 "SignInputParser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : 'x)) in
             let _4 = (let data = parseState.GetInput(4) in (Microsoft.FSharp.Core.Operators.unbox data : 'l)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 20 "SignInputParser.fsp"
+# 25 "SignInputParser.fsp"
                                                           SignArrayInit(_1, _4) 
                    )
-# 20 "SignInputParser.fsp"
+# 25 "SignInputParser.fsp"
                  : A));
-# 158 "SignInputParser.fs"
+# 190 "SignInputParser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : A)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : A)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 21 "SignInputParser.fsp"
+# 26 "SignInputParser.fsp"
                                                           Sequence(_1, _3) 
                    )
-# 21 "SignInputParser.fsp"
+# 26 "SignInputParser.fsp"
                  : A));
-# 170 "SignInputParser.fs"
+# 202 "SignInputParser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : 'a)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : 'l)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 24 "SignInputParser.fsp"
+# 29 "SignInputParser.fsp"
                                                           SignArraySequence(_1, _3)
                    )
-# 24 "SignInputParser.fsp"
+# 29 "SignInputParser.fsp"
                  : 'l));
-# 182 "SignInputParser.fs"
+# 214 "SignInputParser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : 'a)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 25 "SignInputParser.fsp"
+# 30 "SignInputParser.fsp"
                                                           Sign(_1) 
                    )
-# 25 "SignInputParser.fsp"
+# 30 "SignInputParser.fsp"
                  : 'l));
-# 193 "SignInputParser.fs"
+# 225 "SignInputParser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : string)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 27 "SignInputParser.fsp"
+# 32 "SignInputParser.fsp"
                                                           _1 
                    )
-# 27 "SignInputParser.fsp"
+# 32 "SignInputParser.fsp"
                  : 'x));
-# 204 "SignInputParser.fs"
+# 236 "SignInputParser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : string)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 28 "SignInputParser.fsp"
+# 33 "SignInputParser.fsp"
                                                           _1 
                    )
-# 28 "SignInputParser.fsp"
+# 33 "SignInputParser.fsp"
                  : 'a));
 |]
-# 216 "SignInputParser.fs"
+# 248 "SignInputParser.fs"
 let tables () : FSharp.Text.Parsing.Tables<_> = 
   { reductions= _fsyacc_reductions ();
     endOfInputTag = _fsyacc_endOfInputTag;
@@ -232,8 +264,8 @@ let tables () : FSharp.Text.Parsing.Tables<_> =
                               match parse_error_rich with 
                               | Some f -> f ctxt
                               | None -> parse_error ctxt.Message);
-    numTerminals = 10;
+    numTerminals = 11;
     productionToNonTerminalTable = _fsyacc_productionToNonTerminalTable  }
 let engine lexer lexbuf startState = (tables ()).Interpret(lexer, lexbuf, startState)
-let start lexer lexbuf : A =
+let start lexer lexbuf : AS =
     Microsoft.FSharp.Core.Operators.unbox ((tables ()).Interpret(lexer, lexbuf, 0))

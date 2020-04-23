@@ -18,5 +18,6 @@ rule tokenize = parse
 | "{"           { LCBRAK }
 | "}"           { RCBRAK }
 | ","           { COMMA }
+| ";"           { SEMI }
 | eof           { EOF }
 | _ { raise (Exception (sprintf "SyntaxError: Unexpected char: '%s' Line: %d Column: %d" (LexBuffer<_>.LexemeString lexbuf) (lexbuf.StartPos.Line+1) lexbuf.StartPos.Column)) }

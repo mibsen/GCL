@@ -4,16 +4,21 @@ open SignInput
 
 %token <string> VAR
 %token <string> SIGN
-%token ASSIGN LCBRAK RCBRAK COMMA EOF 
-%left ASSIGN LCBRAK RCBRAK COMMA EOF 
+%token ASSIGN LCBRAK RCBRAK COMMA EOF SEMI
+%left ASSIGN LCBRAK RCBRAK COMMA EOF SEMI
 
 %start start
 
-%type <A> start
+%type <AS> start
+%type <AS> list
 %type <A> assignment
 
 %%
-start: assignment EOF              { $1 }
+start: list EOF              { $1 }
+
+list:
+    |assignment SEMI list { Lines($1, $3) }
+    |assignment { Line($1) }
 
 assignment:
       |x ASSIGN a                  { SignVarInit($1, $3) }
@@ -26,5 +31,6 @@ l:
 
 x:  VAR                            { $1 }
 a:  SIGN                           { $1 }
+
 
 %%
