@@ -106,7 +106,7 @@ try
 
        //Map.iter (fun q nam -> printfn "%s: \n%s" q (Set.foldBack (fun (varSigns, arrSigns) a -> (sprintf "%s %s \n" (Map.foldBack (fun var x a -> (sprintf "(%s, %i)" var x)+a) varSigns "") (Map.foldBack (fun var x a -> (sprintf "(%s, %s)" var (x.ToString()))+a) arrSigns ""))+a) nam "")) abstractMemory
 
-       printfn "%s" (printAbstractMemory abstractMemory)
+       printfn "%s" (PrintAbstractMemory abstractMemory)
 
      with e -> printfn "%s \n %s" e.Message e.StackTrace
  with e -> printfn "ERROR: %s" e.Message
