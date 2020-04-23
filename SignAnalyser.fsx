@@ -4,6 +4,18 @@ open FSharp.Text.Lexing
 open System
 open System.IO
 
+#load "Util.fsx"
+open Util
+
+#load "LexerAndParser/GCLAST.fs"
+open GCLAST
+
+#load "LexerAndParser/GCLParser.fs"
+open GCLParser
+
+#load "LexerAndParser/GCLLexer.fs"
+open GCLLexer
+
 #load "SignAnalyser/SignInput.fs"
 open SignInput
 
@@ -16,36 +28,12 @@ open SignInputLexer
 #load "SignAnalyser/SignInputInterpret.fs"
 open SignInputInterpret
 
-#load "LexerAndParser/GCLAST.fs"
-open GCLAST
-
-#load "LexerAndParser/GCLParser.fs"
-open GCLParser
-
-#load "LexerAndParser/GCLLexer.fs"
-open GCLLexer
-
 #load "Compiler/PG.fs"
 open PG
 
 #load "SignAnalyser/SignAnalysis.fs"
 open SignAnalysis
 
-let getInput path=
-    try 
-        File.ReadAllText path
-    with e -> 
-        failwith ("could not read file: " + path)
-        null
-
-let getPath = 
-    try 
-        let args: string array = System.Environment.GetCommandLineArgs()
-        args.[2]
-     
-    with e -> 
-        printfn "Insert Path to file"
-        Console.ReadLine()   
 
 let getInitSignsList path: NodeAbsMem = 
 
@@ -70,57 +58,32 @@ let getInitSignsList path: NodeAbsMem =
                Set.empty.Add(Map.empty, Map.empty)
 
 
-let getDeterministic =
-    try 
-        let args: string array = System.Environment.GetCommandLineArgs()
-        Boolean.Parse(args.[4])
-    with e -> 
-        false
-
-let getInitSignVars =
-    try 
-        let args: string array = System.Environment.GetCommandLineArgs()
-        args.[3]
-    with e -> 
-        printfn "Insert Path to file"
-        Console.ReadLine()   
-
-let path = getPath
-let deterministic = getDeterministic
+let args: string array = System.Environment.GetCommandLineArgs()
+let path = getPath args
+let deterministic = getDeterministic args
 
 printfn "Deterministic: %b" deterministic
 printfn "%s" path
 printfn "Reading file content"
 
 let input = getInput path
+let initSignsSet = getInitSignsList (getInitVals args)
+let initAbsMem = Map.empty.Add("qS", initSignsSet)
 
-let initSignsSet = getInitSignsList getInitSignVars
+try
+    let lexbuf = LexBuffer<char>.FromString input
 
+    try 
+       let res = GCLParser.start GCLLexer.tokenize lexbuf
 
-// Function to return the abstract memory for the initsigns
-let getAbstractMemory initsigns= 
-    let initAbsMem = Map.empty.Add("qS", initsigns)
+       
+       let final = Node("qE")                                
+       let start = Node("qS")
+       let (edgeList,_) = buildC start res final 1 deterministic
+                             
+       let abstractMemory = Analyse [start] edgeList initAbsMem
 
-    try
-        let lexbuf = LexBuffer<char>.FromString input
-    
-        try 
-           let res = GCLParser.start GCLLexer.tokenize lexbuf
- 
-           let final = Node("qE")                                
-           let start = Node("qS")
-           let (edgeList,_) = buildC start res final 1 deterministic
-                                 
-           let abstractMemory = Analyse [start] edgeList initAbsMem
+       printfn "%s" (PrintAbstractMemory abstractMemory)
 
-           abstractMemory
-
-         with e -> printfn "%s \n %s" e.Message e.StackTrace
-                   Map.empty
-     with e -> printfn "ERROR: %s" e.Message
-               Map.empty
-
-// We now have the abstract memories
-let am = getAbstractMemory initSignsSet 
-
-printfn "%s" (PrintAbstractMemory am)
+    with e -> printfn "%s \n %s" e.Message e.StackTrace
+with e -> printfn "ERROR: %s" e.Message

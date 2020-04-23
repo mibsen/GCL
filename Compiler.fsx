@@ -4,6 +4,9 @@ open FSharp.Text.Lexing
 open System
 open System.IO
 
+#load "Util.fsx"
+open Util
+
 #load "LexerAndParser/GCLAST.fs"
 open GCLAST
 
@@ -17,35 +20,14 @@ open GCLLexer
 open PG
 
 
-let getPath = 
-    try 
-        let args: string array = System.Environment.GetCommandLineArgs()
-        args.[2]
-     
-    with e -> 
-        printfn "Insert Path to file"
-        Console.ReadLine()   
-
-let getDeterministic =
-    try 
-        let args: string array = System.Environment.GetCommandLineArgs()
-        Boolean.Parse(args.[3])
-    with e -> 
-        false
-let path = getPath
-let deterministic = getDeterministic
+let args: string array = System.Environment.GetCommandLineArgs()
+let path = getPath args
+let deterministic = getDeterministic args
 
 printfn "Deterministic: %b" deterministic
 printfn "%s" path
 printfn "Reading file content"
 
-
-let getInput path=
-    try 
-        File.ReadAllText path
-    with e -> 
-        failwith ("could not read file: " + path)
-        null
 
 let input = getInput path
 

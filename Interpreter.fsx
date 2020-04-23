@@ -4,6 +4,18 @@ open FSharp.Text.Lexing
 open System
 open System.IO
 
+#load "Util.fsx"
+open Util
+
+#load "LexerAndParser/GCLAST.fs"
+open GCLAST
+
+#load "LexerAndParser/GCLParser.fs"
+open GCLParser
+
+#load "LexerAndParser/GCLLexer.fs"
+open GCLLexer
+
 #load "Interpreter/Input.fs"
 open Input
 
@@ -16,27 +28,11 @@ open InputLexer
 #load "Interpreter/InputInterpret.fs"
 open InputInterpret
 
-#load "LexerAndParser/GCLAST.fs"
-open GCLAST
-
-#load "LexerAndParser/GCLParser.fs"
-open GCLParser
-
-#load "LexerAndParser/GCLLexer.fs"
-open GCLLexer
-
 #load "Compiler/PG.fs"
 open PG
 
 #load "Interpreter/Interpret.fs"
 open Interpret
-
-let getInput path=
-    try 
-        File.ReadAllText path
-    with e -> 
-        failwith ("could not read file: " + path)
-        null
 
 let getInputMap path: Map<string, int> = 
 
@@ -54,33 +50,10 @@ let getInputMap path: Map<string, int> =
      with e -> printfn "ERROR: %s" e.Message
                Map.empty
 
-let getPath = 
-    try 
-        let args: string array = System.Environment.GetCommandLineArgs()
-        args.[2]
-     
-    with e -> 
-        printfn "Insert Path to file"
-        Console.ReadLine()   
-
-let getDeterministic =
-    try 
-        let args: string array = System.Environment.GetCommandLineArgs()
-        Boolean.Parse(args.[4])
-    with e -> 
-        false
-
-let getInitVars =
-    try 
-        let args: string array = System.Environment.GetCommandLineArgs()
-        args.[3]
-    with e -> 
-        printfn "Insert Path to file"
-        Console.ReadLine()   
-
-let path = getPath
-let deterministic = getDeterministic
-let inputMap = getInputMap getInitVars
+let args: string array = System.Environment.GetCommandLineArgs()
+let path = getPath args
+let deterministic = getDeterministic args
+let inputMap = getInputMap (getInitVals args)
 
 printfn "Deterministic: %b" deterministic
 printfn "%s" path
