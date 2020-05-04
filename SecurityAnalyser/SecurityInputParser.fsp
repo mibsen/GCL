@@ -1,0 +1,34 @@
+%{
+open SecurityInput
+%}
+
+%token <string> VAR
+%token <string> SIGN
+%token ASSIGN COMMA EOF SEMI FLOW
+%left ASSIGN COMMA EOF SEMI FLOW
+
+%start start
+
+%type <I> start
+%type <I> input
+
+%%
+start: input EOF              { $1 }
+
+input: lattice SEMI classification       { Input($1, $3) }
+
+lattice: 
+    |lattice COMMA lattice               { Lattice($1, $3) }
+    |ordering                            { SubLattice($1) }
+
+ordering:
+    |x FLOW ordering                     { SubsetOrdering($1, $3)}
+    |x FLOW x                            { FlowElement($1, $3)}
+
+classification:
+    |classification COMMA classification  { ClassSequence($1, $3) }
+    |x ASSIGN x                          { ClassAssign($1, $3) }
+
+x:  VAR                                  { $1 }
+
+%%

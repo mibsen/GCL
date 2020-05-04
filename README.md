@@ -98,6 +98,31 @@ The file containing the initial abstract memory should follow the same general s
 
 `x = +, y = +, A = {-}`
 
+## How to run the security analyser
+`fsi.exe SecurityAnalyser.fsx <Path to source file> <Path to file with lattice and classifications>`
+
+This will print the security analysis for the program with the given lattice and classifications. An example output would be:
+
+`Actual flows`
+`A->A, B->B, i->A, i->B, i->i, i->j, j->A, j->B, j->i, j->j, m->A, m->B, m->i, m->j, n->A, n->B, n->i, n->j,`
+
+`Allowed flows`
+`A->A, A->B, A->i, A->j, A->m, A->n, B->B, i->A, i->B, i->i, i->j, i->m, i->n, j->B, j->j, j->n, m->A, m->B, m->i, m->j, m->m, m->n, n->B, n->n,`
+
+`Violations`
+`j->A, j->i, n->A, n->i, n->j,`
+
+`Result`
+`Not Secure`
+
+The syntax of file containing the lattice and classifications differs from http://www.formalmethods.dk/fm4fun/#sign-analysis. A multi-level lattice is defined by:
+
+`unclassified <  classified < secret < topSecret`
+
+The classification has the same syntax and the classification and the lattice should be in the same file separated by a semicolon with the lattice first. The full input should then look like:
+
+`unclassified <  classified < secret < topSecret ; i = unclassified, j = classified, m = unclassified, n = secret , A = unclassified, B = topSecret`
+
 ## Tests
 Multiple test cases are placed in the `./test/cases` folder.
 
