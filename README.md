@@ -123,7 +123,7 @@ The syntax of file containing the lattice and classifications differs from http:
 
 `unclassified <  classified < secret < topSecret`
 
-The classification has the same syntax and the classification and the lattice should be in the same file separated by a semicolon with the lattice first. The full input should then look like:
+The classification has the same syntax. The classification and the lattice should be in the same file separated by a semicolon with the lattice first. The full input should then look like:
 
 `unclassified <  classified < secret < topSecret ; i = unclassified, j = classified, m = unclassified, n = secret , A = unclassified, B = topSecret`
 
