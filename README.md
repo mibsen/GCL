@@ -103,16 +103,20 @@ The file containing the initial abstract memory should follow the same general s
 
 This will print the security analysis for the program with the given lattice and classifications. An example output would be:
 
-`Actual flows`
+`Actual flows:`
+
 `A->A, B->B, i->A, i->B, i->i, i->j, j->A, j->B, j->i, j->j, m->A, m->B, m->i, m->j, n->A, n->B, n->i, n->j,`
 
-`Allowed flows`
+`Allowed flows:`
+
 `A->A, A->B, A->i, A->j, A->m, A->n, B->B, i->A, i->B, i->i, i->j, i->m, i->n, j->B, j->j, j->n, m->A, m->B, m->i, m->j, m->m, m->n, n->B, n->n,`
 
-`Violations`
+`Violations:`
+
 `j->A, j->i, n->A, n->i, n->j,`
 
-`Result`
+`Result:`
+
 `Not Secure`
 
 The syntax of file containing the lattice and classifications differs from http://www.formalmethods.dk/fm4fun/#sign-analysis. A multi-level lattice is defined by:
