@@ -1,0 +1,9 @@
+if x=y -> if h=x -> z:=x
+          [] true -> z:=x
+          fi
+[] y>=x -> if h=x -> z:=x
+           fi
+[] y<=x -> z:=x*y
+ fi
+
+

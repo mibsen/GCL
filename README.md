@@ -127,6 +127,37 @@ The classification has the same syntax. The classification and the lattice shoul
 
 `unclassified <  classified < secret < topSecret ; i = unclassified, j = classified, m = unclassified, n = secret , A = unclassified, B = topSecret`
 
+## How to run the model checker
+`fsi.exe ModelChecker.fsx <Path to source file> <Path to file with initial variables> <true or false to construct deterministic graph (false is default)>`
+
+This will print each stuck state and whether or not that state is a terminal state. An example output would be:
+
+`status: stuck`
+
+`Node: q4`
+
+`x: 0`
+
+`y: 0`
+
+`z: 0`
+
+
+`status: terminated`
+
+`Node: qE`
+
+`x: 0`
+
+`y: 0`
+
+`z: 0`
+
+The file containing the initial variables should follow the same syntax as the initialization of variables in http://www.formalmethods.dk/fm4fun. For example:
+
+`x = 0, y = 0, z = 0, A = [1,2,3,4]`
+
+
 ## Tests
 Multiple test cases are placed in the `./test/cases` folder.
 

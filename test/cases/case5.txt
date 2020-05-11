@@ -1,7 +1,7 @@
 if true -> z:=x
 [] y>x -> z:=y
  fi;
-if false -> z:=x
+if true -> z:=x
 [] y>x -> z:=y
  fi
 

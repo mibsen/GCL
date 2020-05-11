@@ -71,7 +71,7 @@ and buildGC (start: Node) gc (final: Node) (n: int) (prev: b) (deterministic: bo
         match gc with
             | Choice (b , C) -> let fresh = Node("q"+string(n))
                                 let (edges,n2) = buildC fresh C final (n+1) deterministic
-                                (Edge(start, BoolE(Not(b)), fresh))::edges , n2, prev
+                                (Edge(start, BoolE(b), fresh))::edges , n2, prev
             | Conditional (gc1 , gc2) -> let (Edges, n1, _) = buildGC start gc1 final n (Bool(false)) deterministic
                                          let (Edges2, n2, _) = buildGC start gc2 final n1 (Bool(false)) deterministic
                                          Edges @ Edges2, n2, prev
